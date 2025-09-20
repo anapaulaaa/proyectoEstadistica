@@ -49,10 +49,4 @@ def main():
     gui_main()
 
 if __name__ == "__main__":
-    # Por defecto ejecuta la interfaz gráfica
     main()
-    
-    # MODO DESARROLLADOR:
-    # Si quieres ejecutar la versión de consola para pruebas rápidas, 
-    # descomenta la siguiente línea:
-    # main_consola()

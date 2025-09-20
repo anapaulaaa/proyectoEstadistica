@@ -1,466 +1,307 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox, scrolledtext
+from tkinter import ttk, filedialog, messagebox, simpledialog as sd
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib
-matplotlib.use('TkAgg')
-
-# Importar las funciones del proyecto
-from analisis_estadistico import calcular_tendencia_central, generar_dfs, generar_dfsvai
 from cargar_datos import importar_csv
+from analisis_estadistico import calcular_tendencia_central, generar_dfs, generar_dfsvai
+from graficas import graficar_tendencia, graficar_frecuencia
 from exportar_resultados import exportar_resultados
-from graficas import graficar_frecuencia
+from probabilidades import ProbabilidadesElementales
+import matplotlib.pyplot as plt
+from math import comb
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from diagramas_arbol import DiagramaArbol  # Tu clase del árbol de probabilidades
 
-class AnalizadorEstadisticoGUI:
+class App:
     def __init__(self, root):
         self.root = root
         self.root.title("Analizador Estadístico")
-        self.root.geometry("1200x800")
-        self.root.configure(bg='#f0f0f0')
-        
-        # Variables
-        self.datos = None
-        self.columna_seleccionada = None
-        self.tendencia = None
-        self.dfs = None
-        self.dfsvai = None
-        
-        # Crear la interfaz
-        self.crear_interfaz()
-        
-    def crear_interfaz(self):
-        # Frame principal
-        main_frame = ttk.Frame(self.root, padding="10")
-        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-        
-        # Configurar el grid
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=1)
-        main_frame.columnconfigure(1, weight=1)
-        main_frame.rowconfigure(2, weight=1)
-        
-        # Título
-        titulo = ttk.Label(main_frame, text="Analizador Estadístico", 
-                          font=('Arial', 16, 'bold'))
-        titulo.grid(row=0, column=0, columnspan=3, pady=(0, 20))
-        
-        # Frame de control (izquierda)
-        control_frame = ttk.LabelFrame(main_frame, text="Controles", padding="10")
-        control_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(0, 10))
-        
-        # Botón cargar archivo
-        ttk.Button(control_frame, text="📁 Cargar CSV", 
-                  command=self.cargar_archivo, width=20).grid(row=0, column=0, pady=5)
-        
-        # Label para mostrar archivo cargado
-        self.archivo_label = ttk.Label(control_frame, text="Ningún archivo cargado", 
-                                      foreground='gray')
-        self.archivo_label.grid(row=1, column=0, pady=5)
-        
-        # Combobox para seleccionar columna
-        ttk.Label(control_frame, text="Columna a analizar:").grid(row=2, column=0, pady=(10, 5))
-        self.columna_combo = ttk.Combobox(control_frame, state="disabled", width=17)
-        self.columna_combo.grid(row=3, column=0, pady=5)
-        self.columna_combo.bind('<<ComboboxSelected>>', self.columna_seleccionada_cambio)
-        
-        # Frame para número de bins
-        bins_frame = ttk.Frame(control_frame)
-        bins_frame.grid(row=4, column=0, pady=(10, 5))
-        ttk.Label(bins_frame, text="Bins:").pack(side=tk.LEFT)
-        self.bins_var = tk.StringVar(value="10")
-        bins_spin = ttk.Spinbox(bins_frame, from_=5, to=50, width=5, 
-                               textvariable=self.bins_var)
-        bins_spin.pack(side=tk.LEFT, padx=(5, 0))
-        
-        # Botón analizar
-        self.analizar_btn = ttk.Button(control_frame, text="📊 Analizar Datos", 
-                                      command=self.analizar_datos, state="disabled")
-        self.analizar_btn.grid(row=5, column=0, pady=10)
-        
-        # Separador
-        ttk.Separator(control_frame, orient='horizontal').grid(row=6, column=0, 
-                                                              sticky=(tk.W, tk.E), pady=10)
-        
-        # Botones de gráficas
-        ttk.Label(control_frame, text="Gráficas:", font=('Arial', 10, 'bold')).grid(row=7, column=0, pady=(5, 10))
-        
-        self.hist_btn = ttk.Button(control_frame, text="📈 Histograma", 
-                                  command=self.mostrar_histograma, state="disabled")
-        self.hist_btn.grid(row=8, column=0, pady=2)
-        
-        self.freq_simple_btn = ttk.Button(control_frame, text="📊 Freq. Simple", 
-                                         command=self.mostrar_freq_simple, state="disabled")
-        self.freq_simple_btn.grid(row=9, column=0, pady=2)
-        
-        self.freq_agrup_btn = ttk.Button(control_frame, text="📊 Freq. Agrupada", 
-                                        command=self.mostrar_freq_agrupada, state="disabled")
-        self.freq_agrup_btn.grid(row=10, column=0, pady=2)
-        
-        # Separador
-        ttk.Separator(control_frame, orient='horizontal').grid(row=11, column=0, 
-                                                              sticky=(tk.W, tk.E), pady=10)
-        
-        # Botón exportar
-        self.exportar_btn = ttk.Button(control_frame, text="💾 Exportar Resultados", 
-                                      command=self.exportar_resultados, state="disabled")
-        self.exportar_btn.grid(row=12, column=0, pady=10)
-        
-        # Notebook para pestañas (derecha)
-        self.notebook = ttk.Notebook(main_frame)
-        self.notebook.grid(row=1, column=1, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S))
-        
-        # Pestaña de resultados
-        self.frame_resultados = ttk.Frame(self.notebook)
-        self.notebook.add(self.frame_resultados, text="📋 Resultados")
-        
-        # Pestaña de tablas
-        self.frame_tablas = ttk.Frame(self.notebook)
-        self.notebook.add(self.frame_tablas, text="📊 Tablas")
-        
-        # Pestaña de gráficas
-        self.frame_graficas = ttk.Frame(self.notebook)
-        self.notebook.add(self.frame_graficas, text="📈 Gráficas")
-        
-        self.crear_contenido_pestanas()
-        
-    def crear_contenido_pestanas(self):
-        # Contenido pestaña resultados
-        self.resultados_text = scrolledtext.ScrolledText(self.frame_resultados, 
-                                                        width=60, height=25,
-                                                        font=('Consolas', 10))
-        self.resultados_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        # Contenido pestaña tablas
-        tabla_notebook = ttk.Notebook(self.frame_tablas)
-        tabla_notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        # Frame para tabla simple
-        self.frame_tabla_simple = ttk.Frame(tabla_notebook)
-        tabla_notebook.add(self.frame_tabla_simple, text="Frecuencia Simple")
-        
-        # Frame para tabla agrupada
-        self.frame_tabla_agrupada = ttk.Frame(tabla_notebook)
-        tabla_notebook.add(self.frame_tabla_agrupada, text="Frecuencia Agrupada")
-        
-        # Treeviews para las tablas
-        self.crear_treeviews()
-        
-        # Contenido pestaña gráficas
-        self.frame_canvas = ttk.Frame(self.frame_graficas)
-        self.frame_canvas.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-    def crear_treeviews(self):
-        # Treeview para tabla simple
-        self.tree_simple = ttk.Treeview(self.frame_tabla_simple, show='headings')
-        scrollbar_simple = ttk.Scrollbar(self.frame_tabla_simple, orient=tk.VERTICAL, 
-                                        command=self.tree_simple.yview)
-        self.tree_simple.configure(yscrollcommand=scrollbar_simple.set)
-        
-        self.tree_simple.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar_simple.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        # Treeview para tabla agrupada
-        self.tree_agrupada = ttk.Treeview(self.frame_tabla_agrupada, show='headings')
-        scrollbar_agrupada = ttk.Scrollbar(self.frame_tabla_agrupada, orient=tk.VERTICAL, 
-                                          command=self.tree_agrupada.yview)
-        self.tree_agrupada.configure(yscrollcommand=scrollbar_agrupada.set)
-        
-        self.tree_agrupada.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar_agrupada.pack(side=tk.RIGHT, fill=tk.Y)
-        
-    def cargar_archivo(self):
-        archivo = filedialog.askopenfilename(
-            title="Seleccionar archivo CSV",
-            filetypes=[("Archivos CSV", "*.csv"), ("Todos los archivos", "*.*")]
-        )
-        
-        if archivo:
-            try:
-                self.datos = importar_csv(archivo)
-                if self.datos is not None:
-                    # Actualizar interfaz
-                    nombre_archivo = archivo.split('/')[-1]
-                    self.archivo_label.config(text=f"Archivo: {nombre_archivo}", 
-                                            foreground='green')
-                    
-                    # Llenar combobox con columnas numéricas
-                    columnas_numericas = self.datos.select_dtypes(include=[np.number]).columns.tolist()
-                    self.columna_combo['values'] = columnas_numericas
-                    self.columna_combo['state'] = 'readonly'
-                    
-                    if columnas_numericas:
-                        self.columna_combo.current(0)
-                        self.columna_seleccionada = columnas_numericas[0]
-                        self.analizar_btn['state'] = 'normal'
-                    
-                    self.mostrar_info_archivo()
-                    
-            except Exception as e:
-                messagebox.showerror("Error", f"Error al cargar el archivo:\n{str(e)}")
-                
-    def mostrar_info_archivo(self):
-        info = f"Archivo cargado exitosamente!\n\n"
-        info += f"Dimensiones: {self.datos.shape[0]} filas x {self.datos.shape[1]} columnas\n\n"
-        info += f"Columnas disponibles:\n"
-        for col in self.datos.columns:
-            tipo = str(self.datos[col].dtype)
-            info += f"  - {col} ({tipo})\n"
-        
-        info += f"\nPrimeras 5 filas:\n{self.datos.head().to_string()}"
-        
-        self.resultados_text.delete(1.0, tk.END)
-        self.resultados_text.insert(1.0, info)
-        
-    def columna_seleccionada_cambio(self, event):
-        self.columna_seleccionada = self.columna_combo.get()
-        
-    def analizar_datos(self):
-        if self.datos is None or self.columna_seleccionada is None:
-            messagebox.showwarning("Advertencia", "Debe cargar un archivo y seleccionar una columna")
-            return
-            
-        try:
-            # Obtener datos de la columna seleccionada
-            datos_columna = self.datos[self.columna_seleccionada].dropna()
-            bins = int(self.bins_var.get())
-            
-            # Calcular estadísticas
-            self.tendencia = calcular_tendencia_central(datos_columna)
-            self.dfs = generar_dfs(datos_columna)
-            self.dfsvai = generar_dfsvai(datos_columna, bins=bins)
-            
-            # Mostrar resultados
-            self.mostrar_resultados()
-            self.mostrar_tablas()
-            
-            # Habilitar botones
-            self.hist_btn['state'] = 'normal'
-            self.freq_simple_btn['state'] = 'normal'
-            self.freq_agrup_btn['state'] = 'normal'
-            self.exportar_btn['state'] = 'normal'
-            
-            # Cambiar a pestaña de resultados
-            self.notebook.select(self.frame_resultados)
-            
-            messagebox.showinfo("Éxito", "Análisis completado exitosamente!")
-            
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al analizar los datos:\n{str(e)}")
-            
-    def mostrar_resultados(self):
-        resultados = f"ANÁLISIS ESTADÍSTICO\n"
-        resultados += f"Columna: {self.columna_seleccionada}\n"
-        resultados += f"{'='*50}\n\n"
-        
-        resultados += "MEDIDAS DE TENDENCIA CENTRAL:\n"
-        resultados += f"{'-'*35}\n"
-        for medida, valor in self.tendencia.items():
-            if isinstance(valor, list):
-                valor_str = ', '.join(map(str, valor))
-                resultados += f"{medida}: {valor_str}\n"
-            else:
-                resultados += f"{medida}: {valor}\n"
-        
-        resultados += f"\n\nDATOS GENERALES:\n"
-        resultados += f"{'-'*20}\n"
-        datos_columna = self.datos[self.columna_seleccionada].dropna()
-        resultados += f"Número de observaciones: {len(datos_columna)}\n"
-        resultados += f"Valores únicos: {datos_columna.nunique()}\n"
-        resultados += f"Valor mínimo: {datos_columna.min()}\n"
-        resultados += f"Valor máximo: {datos_columna.max()}\n"
-        resultados += f"Rango: {datos_columna.max() - datos_columna.min()}\n"
-        resultados += f"Desviación estándar: {round(datos_columna.std(), 2)}\n"
-        resultados += f"Varianza: {round(datos_columna.var(), 2)}\n"
-        
-        self.resultados_text.delete(1.0, tk.END)
-        self.resultados_text.insert(1.0, resultados)
-        
-    def mostrar_tablas(self):
-        # Mostrar tabla de frecuencia simple
-        self.tree_simple.delete(*self.tree_simple.get_children())
-        
-        # Configurar columnas
-        columnas_simple = list(self.dfs.columns)
-        self.tree_simple['columns'] = columnas_simple
-        
-        for col in columnas_simple:
-            self.tree_simple.heading(col, text=col)
-            self.tree_simple.column(col, width=100)
-            
-        # Insertar datos
-        for index, row in self.dfs.iterrows():
-            self.tree_simple.insert('', 'end', values=list(row))
-            
-        # Mostrar tabla de frecuencia agrupada
-        self.tree_agrupada.delete(*self.tree_agrupada.get_children())
-        
-        # Configurar columnas
-        columnas_agrupada = list(self.dfsvai.columns)
-        self.tree_agrupada['columns'] = columnas_agrupada
-        
-        for col in columnas_agrupada:
-            self.tree_agrupada.heading(col, text=col)
-            self.tree_agrupada.column(col, width=120)
-            
-        # Insertar datos
-        for index, row in self.dfsvai.iterrows():
-            valores = []
-            for val in row:
-                if hasattr(val, 'left') and hasattr(val, 'right'):  # Es un intervalo
-                    valores.append(f"({val.left:.1f}, {val.right:.1f}]")
-                else:
-                    valores.append(str(val))
-            self.tree_agrupada.insert('', 'end', values=valores)
-            
-    def limpiar_canvas(self):
-        for widget in self.frame_canvas.winfo_children():
-            widget.destroy()
-            
-    def mostrar_histograma(self):
-        self.limpiar_canvas()
-        
-        fig, ax = plt.subplots(figsize=(10, 6))
-        datos_columna = self.datos[self.columna_seleccionada].dropna()
-        bins = int(self.bins_var.get())
-        
-        ax.hist(datos_columna, bins=bins, edgecolor='black', alpha=0.7, color='skyblue')
-        ax.set_title(f'Histograma - {self.columna_seleccionada}', fontsize=14, fontweight='bold')
-        ax.set_xlabel(self.columna_seleccionada)
-        ax.set_ylabel('Frecuencia')
-        ax.grid(True, alpha=0.3)
-        
-        # Añadir estadísticas al gráfico
-        media = self.tendencia['Media aritmética']
-        mediana = self.tendencia['Mediana']
-        ax.axvline(media, color='red', linestyle='--', alpha=0.8, label=f'Media: {media}')
-        ax.axvline(mediana, color='green', linestyle='--', alpha=0.8, label=f'Mediana: {mediana}')
-        ax.legend()
-        
-        plt.tight_layout()
-        
-        canvas = FigureCanvasTkAgg(fig, self.frame_canvas)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        self.notebook.select(self.frame_graficas)
-        
-    def mostrar_freq_simple(self):
-        self.limpiar_canvas()
-        
-        fig, ax = plt.subplots(figsize=(12, 6))
-        
-        valores = self.dfs['Valor'].astype(str)
-        frecuencias = self.dfs['Frecuencia']
-        
-        bars = ax.bar(range(len(valores)), frecuencias, color='lightcoral', edgecolor='black')
-        ax.set_title(f'Gráfico de Frecuencia Simple - {self.columna_seleccionada}', 
-                    fontsize=14, fontweight='bold')
-        ax.set_xlabel('Valores')
-        ax.set_ylabel('Frecuencia')
-        ax.set_xticks(range(len(valores)))
-        ax.set_xticklabels(valores, rotation=45)
-        ax.grid(True, alpha=0.3, axis='y')
-        
-        # Añadir valores sobre las barras
-        for bar, freq in zip(bars, frecuencias):
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                   f'{freq}', ha='center', va='bottom', fontsize=9)
-        
-        plt.tight_layout()
-        
-        canvas = FigureCanvasTkAgg(fig, self.frame_canvas)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        self.notebook.select(self.frame_graficas)
-        
-    def mostrar_freq_agrupada(self):
-        try:
-            self.limpiar_canvas()
-            
-            fig, ax = plt.subplots(figsize=(12, 6), dpi=80)
-            
-            # Usar las marcas de clase para el eje x
-            marcas = self.dfsvai['Marca de Clase']
-            frecuencias = self.dfsvai['Frecuencia']
-            
-            # Calcular ancho de barras basado en la diferencia entre marcas
-            if len(marcas) > 1:
-                ancho = marcas.diff().median() * 0.8
-            else:
-                ancho = 1.0
-                
-            bars = ax.bar(marcas, frecuencias, color='lightgreen', 
-                         edgecolor='black', alpha=0.8, width=ancho)
-            ax.set_title(f'Gráfico de Frecuencia Agrupada - {self.columna_seleccionada}', 
-                        fontsize=14, fontweight='bold')
-            ax.set_xlabel('Marca de Clase')
-            ax.set_ylabel('Frecuencia')
-            ax.grid(True, alpha=0.3, axis='y')
-            
-            # Añadir valores sobre las barras
-            for bar, freq in zip(bars, frecuencias):
-                height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2., height + max(frecuencias)*0.01,
-                       f'{freq}', ha='center', va='bottom', fontsize=9, fontweight='bold')
-            
-            fig.tight_layout()
-            
-            canvas = FigureCanvasTkAgg(fig, self.frame_canvas)
-            canvas.draw()
-            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
-            # Añadir barra de herramientas
-            from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
-            toolbar = NavigationToolbar2Tk(canvas, self.frame_canvas)
-            toolbar.update()
-            
-            self.notebook.select(self.frame_graficas)
-            print("Gráfico de frecuencia agrupada creado exitosamente")  # Debug
-            
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al crear gráfico de frecuencia agrupada:\n{str(e)}")
-            print(f"Error detallado: {e}")  # Debug
-        
-    def exportar_resultados(self):
-        if self.tendencia is None or self.dfs is None or self.dfsvai is None:
-            messagebox.showwarning("Advertencia", "No hay resultados para exportar")
-            return
-            
-        try:
-            directorio = filedialog.askdirectory(title="Seleccionar directorio para exportar")
-            if directorio:
-                # Crear subdirectorio si no existe
-                import os
-                directorio_datos = os.path.join(directorio, 'datos')
-                os.makedirs(directorio_datos, exist_ok=True)
-                
-                # Exportar usando la función existente
-                exportar_resultados(self.tendencia, self.dfs, self.dfsvai)
-                
-                # Mover archivos al directorio seleccionado
-                import shutil
-                archivos = ['datos/resultados_tendencia.csv', 
-                           'datos/cuadro_frecuencia_simple.csv',
-                           'datos/cuadro_frecuencia_agrupada.csv']
-                
-                for archivo in archivos:
-                    if os.path.exists(archivo):
-                        nombre_archivo = os.path.basename(archivo)
-                        destino = os.path.join(directorio_datos, nombre_archivo)
-                        shutil.copy2(archivo, destino)
-                
-                messagebox.showinfo("Éxito", f"Resultados exportados en:\n{directorio_datos}")
-                
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al exportar:\n{str(e)}")
+        self.root.geometry("1200x900")
 
+        self.prob = ProbabilidadesElementales()
+
+        # Notebook principal
+        self.tab_control = ttk.Notebook(root)
+        self.tab_control.pack(expand=1, fill='both')
+
+        # Inicializar pestañas
+        self.init_estad_tab()
+        self.init_prob_tab()
+
+    # ------------------ PESTAÑA ESTADÍSTICA ------------------ #
+    def init_estad_tab(self):
+        self.tab_estad = ttk.Frame(self.tab_control)
+        self.tab_control.add(self.tab_estad, text='Estadística')
+
+        lbl_title = tk.Label(self.tab_estad, text="Análisis Estadístico", font=("Arial", 16))
+        lbl_title.pack(pady=10)
+
+        btn_cargar = tk.Button(self.tab_estad, text="Cargar archivo CSV", command=self.cargar_archivo)
+        btn_cargar.pack(pady=5)
+
+        # Área de resultados
+        lbl_resultados = tk.Label(self.tab_estad, text="Resultados", font=("Arial", 14))
+        lbl_resultados.pack(pady=10)
+
+        self.text_resultados = tk.Text(self.tab_estad, height=25, width=130)
+        self.text_resultados.pack(padx=10, pady=5)
+
+    def cargar_archivo(self):
+        ruta = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+        if ruta:
+            self.datos = importar_csv(ruta)
+            if self.datos is not None:
+                messagebox.showinfo("Éxito", f"Archivo '{ruta}' cargado correctamente")
+                self.mostrar_estadisticas()
+            else:
+                messagebox.showerror("Error", "No se pudo cargar el archivo CSV")
+
+    def mostrar_estadisticas(self):
+        if hasattr(self, 'datos') and 'Edad' in self.datos.columns:
+            tendencia = calcular_tendencia_central(self.datos['Edad'])
+            dfs = generar_dfs(self.datos['Edad'])
+            dfsvai = generar_dfsvai(self.datos['Edad'])
+
+            # Mostrar resultados en Text
+            self.text_resultados.delete("1.0", tk.END)
+            self.text_resultados.insert(tk.END, "=== Medidas de Tendencia Central ===\n")
+            self.text_resultados.insert(tk.END, f"{tendencia}\n\n")
+            self.text_resultados.insert(tk.END, "=== Cuadro de Frecuencia Simple ===\n")
+            self.text_resultados.insert(tk.END, f"{dfs}\n\n")
+            self.text_resultados.insert(tk.END, "=== Cuadro de Frecuencia Agrupada con Intervalos ===\n")
+            self.text_resultados.insert(tk.END, f"{dfsvai}\n\n")
+
+            # Graficar
+            graficar_tendencia(self.datos['Edad'])
+            graficar_frecuencia(dfs, 'simple')
+            graficar_frecuencia(dfsvai, 'agrupada')
+
+            # Exportar resultados
+            exportar_resultados(tendencia, dfs, dfsvai)
+        else:
+            messagebox.showwarning("Advertencia", "La columna 'Edad' no está presente en los datos")
+
+    # ------------------ PESTAÑA PROBABILIDAD ------------------ #
+    def init_prob_tab(self):
+        self.tab_prob = ttk.Frame(self.tab_control)
+        self.tab_control.add(self.tab_prob, text='Probabilidad')
+
+        lbl_title = tk.Label(self.tab_prob, text="Análisis de Probabilidad", font=("Arial", 16))
+        lbl_title.pack(pady=10)
+
+        # Entrada de espacio muestral
+        frame_espacio = tk.LabelFrame(self.tab_prob, text="Espacio Muestral", padx=10, pady=10)
+        frame_espacio.pack(padx=10, pady=5, fill="x")
+
+        tk.Label(frame_espacio, text="Elementos separados por coma:").grid(row=0, column=0, sticky="w")
+        self.entry_espacio = tk.Entry(frame_espacio, width=80)
+        self.entry_espacio.grid(row=0, column=1, padx=5)
+
+        btn_def_espacio = tk.Button(frame_espacio, text="Definir Espacio Muestral", command=self.definir_espacio)
+        btn_def_espacio.grid(row=0, column=2, padx=5)
+
+        # Entrada de eventos
+        frame_eventos = tk.LabelFrame(self.tab_prob, text="Eventos", padx=10, pady=10)
+        frame_eventos.pack(padx=10, pady=5, fill="x")
+
+        tk.Label(frame_eventos, text="Nombre del evento:").grid(row=0, column=0)
+        self.entry_nombre_evento = tk.Entry(frame_eventos, width=20)
+        self.entry_nombre_evento.grid(row=0, column=1, padx=5)
+
+        tk.Label(frame_eventos, text="Elementos separados por coma:").grid(row=0, column=2)
+        self.entry_elementos_evento = tk.Entry(frame_eventos, width=50)
+        self.entry_elementos_evento.grid(row=0, column=3, padx=5)
+
+        btn_def_evento = tk.Button(frame_eventos, text="Definir Evento", command=self.definir_evento)
+        btn_def_evento.grid(row=0, column=4, padx=5)
+
+        # Área de resultados de probabilidad
+        lbl_resultados = tk.Label(self.tab_prob, text="Resultados", font=("Arial", 14))
+        lbl_resultados.pack(pady=10)
+
+        self.text_prob = tk.Text(self.tab_prob, height=15, width=130)
+        self.text_prob.pack(padx=10, pady=5)
+
+        # Frame para mostrar gráfico del árbol
+        self.frame_arbol = tk.Frame(self.tab_prob)
+        self.frame_arbol.pack(padx=10, pady=10, fill="both", expand=True)
+
+        # Botones de operaciones
+        frame_ops = tk.Frame(self.tab_prob)
+        frame_ops.pack(padx=10, pady=5, fill="x")
+
+        tk.Label(frame_ops, text="Evento A:").grid(row=0, column=0)
+        self.entry_a = tk.Entry(frame_ops, width=20)
+        self.entry_a.grid(row=0, column=1, padx=5)
+
+        tk.Label(frame_ops, text="Evento B:").grid(row=0, column=2)
+        self.entry_b = tk.Entry(frame_ops, width=20)
+        self.entry_b.grid(row=0, column=3, padx=5)
+
+        # BOTONES ORIGINALES
+        botones = [
+            ("Probabilidad Simple A", self.prob_simple),
+            ("Probabilidad Unión", self.prob_union),
+            ("Probabilidad Intersección", self.prob_interseccion),
+            ("Complemento A", self.prob_complemento),
+            ("P(A|B)", self.prob_condicional),
+            ("Ver Independencia", self.ver_independencia),
+            ("Resumen Eventos", self.resumen_eventos),
+        ]
+        for i, (text, cmd) in enumerate(botones):
+            tk.Button(frame_ops, text=text, width=20, command=cmd).grid(row=1, column=i, padx=5, pady=3)
+
+        # BOTONES NUEVOS: Distribución, Bayes, Árbol
+        botones_nuevos = [
+            ("Distribución Bernoulli", self.calcular_bernoulli),
+            ("Distribución Binomial", self.calcular_binomial),
+            ("Teorema de Bayes", self.calcular_bayes),
+            ("Árbol de Probabilidades", self.generar_arbol)
+        ]
+        for i, (text, cmd) in enumerate(botones_nuevos):
+            tk.Button(frame_ops, text=text, width=20, command=cmd).grid(row=2, column=i, padx=5, pady=3)
+
+    # ------------------ FUNCIONES PROBABILIDAD ------------------ #
+    def definir_espacio(self):
+        datos = self.entry_espacio.get()
+        if datos:
+            elementos = [x.strip() for x in datos.split(',')]
+            self.prob.definir_espacio_muestral(elementos)
+            self.text_prob.insert(tk.END, f"Espacio muestral definido: {elementos}\n")
+        else:
+            messagebox.showwarning("Advertencia", "Ingrese elementos para el espacio muestral")
+
+    def definir_evento(self):
+        nombre = self.entry_nombre_evento.get()
+        elementos = [x.strip() for x in self.entry_elementos_evento.get().split(',')]
+        if nombre and elementos:
+            try:
+                self.prob.definir_evento(nombre, elementos)
+                self.text_prob.insert(tk.END, f"Evento '{nombre}' definido con elementos: {elementos}\n")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+        else:
+            messagebox.showwarning("Advertencia", "Complete nombre y elementos del evento")
+
+    def prob_simple(self):
+        a = self.entry_a.get()
+        if a:
+            try:
+                resultado = self.prob.probabilidad_simple(a)
+                self.text_prob.insert(tk.END, f"Probabilidad simple de '{a}': {resultado}\n")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+
+    def prob_union(self):
+        a, b = self.entry_a.get(), self.entry_b.get()
+        if a and b:
+            try:
+                if self.prob.eventos_excluyentes(a, b):
+                    res = self.prob.probabilidad_union_excluyentes(a, b)
+                else:
+                    res = self.prob.probabilidad_union_no_excluyentes(a, b)
+                self.text_prob.insert(tk.END, f"Probabilidad unión de '{a}' y '{b}': {res}\n")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+
+    def prob_interseccion(self):
+        a, b = self.entry_a.get(), self.entry_b.get()
+        if a and b:
+            try:
+                res = self.prob.interseccion_eventos(a, b)
+                self.text_prob.insert(tk.END, f"Intersección de '{a}' y '{b}': {res}\n")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+
+    def prob_complemento(self):
+        a = self.entry_a.get()
+        if a:
+            try:
+                res = self.prob.probabilidad_complemento(a)
+                self.text_prob.insert(tk.END, f"Complemento de '{a}': {res}\n")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+
+    def prob_condicional(self):
+        a, b = self.entry_a.get(), self.entry_b.get()
+        if a and b:
+            try:
+                res = self.prob.probabilidad_condicional(a, b)
+                self.text_prob.insert(tk.END, f"Probabilidad condicional P({a}|{b}): {res}\n")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+
+    def ver_independencia(self):
+        a, b = self.entry_a.get(), self.entry_b.get()
+        if a and b:
+            try:
+                res = self.prob.eventos_independientes(a, b)
+                self.text_prob.insert(tk.END, f"Independencia de '{a}' y '{b}': {res}\n")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+
+    def resumen_eventos(self):
+        res = self.prob.resumen_eventos()
+        self.text_prob.insert(tk.END, f"Resumen de eventos:\n{res}\n")
+
+    # ------------------ FUNCIONES NUEVAS ------------------ #
+    def calcular_bernoulli(self):
+        p = sd.askfloat("Bernoulli", "Probabilidad de éxito (p):")
+        if p is not None:
+            q = 1 - p
+            self.text_prob.insert(tk.END, f"Distribución Bernoulli (p={p}):\nÉxito: {p}\nFracaso: {q}\n\n")
+
+    def calcular_binomial(self):
+        n = sd.askinteger("Binomial", "Número de ensayos (n):")
+        p = sd.askfloat("Binomial", "Probabilidad de éxito (p):")
+        k = sd.askinteger("Binomial", "Número de éxitos (k):")
+        if None not in (n, p, k):
+            prob = comb(n, k) * (p ** k) * ((1 - p) ** (n - k))
+            self.text_prob.insert(tk.END, f"Distribución Binomial P(X={k})={prob}\n\n")
+
+    def calcular_bayes(self):
+        try:
+            P_A = float(sd.askstring("Bayes", "P(A)"))
+            P_B = float(sd.askstring("Bayes", "P(B)"))
+            P_B_A = float(sd.askstring("Bayes", "P(B|A)"))
+            P_B_notA = float(sd.askstring("Bayes", "P(B|¬A)"))
+            P_A_B = (P_B_A * P_A) / ((P_B_A * P_A) + (P_B_notA * (1 - P_A)))
+            self.text_prob.insert(tk.END, f"Teorema de Bayes: P(A|B)={P_A_B}\n\n")
+        except Exception as e:
+            messagebox.showerror("Error", f"Datos inválidos: {e}")
+
+    # ------------------ FUNCION GENERAR ARBOL ------------------ #
+    def generar_arbol(self):
+        try:
+            niveles = sd.askinteger("Árbol", "Número de niveles")
+            if niveles is None or niveles <= 0:
+                raise ValueError("Número de niveles debe ser positivo")
+
+            probabilidades = []
+            for i in range(niveles):
+                p = sd.askfloat("Árbol", f"Probabilidad de éxito en nivel {i+1} (0-1)")
+                if p is None or not (0 <= p <= 1):
+                    raise ValueError("Probabilidades deben estar entre 0 y 1")
+                probabilidades.append(p)
+
+            # Limpiar frame
+            for widget in self.frame_arbol.winfo_children():
+                widget.destroy()
+
+            # Crear y dibujar árbol
+            arbol = DiagramaArbol(niveles, probabilidades)
+            fig = arbol.dibujar()
+            canvas = FigureCanvasTkAgg(fig, master=self.frame_arbol)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill="both", expand=True)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Datos inválidos: {e}")
+
+# ------------------ MAIN ------------------ #
 def main():
+    print("Iniciando Analizador Estadístico - Interfaz Gráfica...")
     root = tk.Tk()
-    app = AnalizadorEstadisticoGUI(root)
+    app = App(root)
     root.mainloop()
 
 if __name__ == "__main__":
