@@ -20,25 +20,11 @@ class PantallaLogin:
         self.root = root
         self.callback_exito = callback_exito
         
-        # Configurar ventana
+        # Configurar título de ventana
         self.root.title(f"{NOMBRE_PROYECTO} - Login")
-        self.root.geometry("500x650")
-        self.root.resizable(False, False)
-        
-        # Centrar ventana
-        self.centrar_ventana()
         
         # Crear interfaz
         self.crear_interfaz()
-    
-    def centrar_ventana(self):
-        """Centra la ventana en la pantalla"""
-        self.root.update_idletasks()
-        width = 500
-        height = 650
-        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.root.winfo_screenheight() // 2) - (height // 2)
-        self.root.geometry(f'{width}x{height}+{x}+{y}')
     
     def crear_interfaz(self):
         """Crea todos los elementos de la interfaz"""
@@ -152,18 +138,20 @@ class PantallaLogin:
         )
         chk_mostrar.pack(anchor='w', pady=(0, 20))
         
-        # Botón Iniciar Sesión (SIN usar **STYLE_BTN_PRIMARY)
+        # Botón Iniciar Sesión
         btn_login = tk.Button(
             frame_login,
             text="🔐 INICIAR SESIÓN",
             command=self.validar_login,
             bg=COLOR_PRIMARY,
-            fg=TEXT_LIGHT,
+            fg="#000000",
             font=FONT_BUTTON,
             width=25,
             height=2,
             relief="flat",
-            cursor="hand2"
+            cursor="hand2",
+            activebackground="#FFEB3B",
+            activeforeground="#000000"
         )
         btn_login.pack(pady=10)
         
@@ -173,12 +161,14 @@ class PantallaLogin:
             text="👤 Acceso como Invitado",
             command=self.login_invitado,
             bg=COLOR_INFO,
-            fg=TEXT_LIGHT,
+            fg="#000000",
             font=FONT_BUTTON,
             width=25,
             height=2,
             relief="flat",
-            cursor="hand2"
+            cursor="hand2",
+            activebackground="#FFEB3B",
+            activeforeground="#000000"
         )
         btn_invitado.pack(pady=5)
         

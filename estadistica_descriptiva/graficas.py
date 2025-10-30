@@ -2,17 +2,26 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 def graficar_tendencia(columna, bins=10):
-    plt.hist(columna, bins=bins, edgecolor='black')
-    plt.title('Distribución de Edad')
-    plt.xlabel('Edad')
-    plt.ylabel('Frecuencia')
-    plt.grid(True)
+    """
+    Genera un histograma de la distribución
+    Retorna la figura en lugar de mostrarla
+    """
+    fig = plt.figure(figsize=(10, 6))
+    plt.hist(columna, bins=bins, edgecolor='black', color='steelblue', alpha=0.7)
+    plt.title('Distribución de Edad', fontsize=14, fontweight='bold')
+    plt.xlabel('Edad', fontsize=12)
+    plt.ylabel('Frecuencia', fontsize=12)
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.show()
+    return fig
 
 
 def graficar_frecuencia(df, tipo='simple', titulo_simple='Frecuencia Simple', titulo_agrupada='Frecuencia con Intervalos'):
-    plt.figure(figsize=(10,5))
+    """
+    Genera gráfica de barras para frecuencias
+    Retorna la figura en lugar de mostrarla
+    """
+    fig = plt.figure(figsize=(12, 6))
 
     # Diagnóstico rápido (descomentar si necesitas debug)
     # print("DEBUG columnas:", df.columns.tolist())
@@ -41,11 +50,17 @@ def graficar_frecuencia(df, tipo='simple', titulo_simple='Frecuencia Simple', ti
         labels = df[val_col].astype(str).tolist() if isinstance(val_col, str) else list(val_col)
         heights = df[freq_col].tolist()
         positions = range(len(heights))
-        plt.bar(positions, heights)
+        bars = plt.bar(positions, heights, color='steelblue', edgecolor='black', alpha=0.7)
+        
+        # Añadir valores sobre las barras
+        for bar, height in zip(bars, heights):
+            plt.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                    f'{int(height)}', ha='center', va='bottom', fontweight='bold')
+        
         plt.xticks(positions, labels, rotation=45, ha='right')
-        plt.title(titulo_simple)
-        plt.xlabel('Valor')
-        plt.ylabel('Frecuencia')
+        plt.title(titulo_simple, fontsize=14, fontweight='bold')
+        plt.xlabel('Valor', fontsize=12)
+        plt.ylabel('Frecuencia', fontsize=12)
 
     else:
         # Agrupada: aceptar que la columna de intervalos se llame 'Intervalo' o 'Clase' o esté en el índice
@@ -85,11 +100,19 @@ def graficar_frecuencia(df, tipo='simple', titulo_simple='Frecuencia Simple', ti
                     heights = df[freq_col].tolist()
 
         positions = range(len(heights))
-        plt.bar(positions, heights)
+        bars = plt.bar(positions, heights, color='coral', edgecolor='black', alpha=0.7)
+        
+        # Añadir valores sobre las barras
+        for bar, height in zip(bars, heights):
+            plt.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                    f'{int(height)}', ha='center', va='bottom', fontweight='bold')
+        
         plt.xticks(positions, labels, rotation=45, ha='right')
-        plt.title(titulo_agrupada)
-        plt.xlabel('Intervalo')
-        plt.ylabel('Frecuencia')
+        plt.title(titulo_agrupada, fontsize=14, fontweight='bold')
+        plt.xlabel('Intervalo', fontsize=12)
+        plt.ylabel('Frecuencia', fontsize=12)
 
+    plt.grid(True, alpha=0.3, axis='y')
     plt.tight_layout()
-    plt.show()
+    return fig
+

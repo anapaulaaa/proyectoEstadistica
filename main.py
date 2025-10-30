@@ -6,6 +6,7 @@ Integra: Login → Menú → Funcionalidades
 import tkinter as tk
 from interfaz.pantalla_login import PantallaLogin
 from interfaz.menu_principal import MenuPrincipal
+from config_interfaz import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
 class StatProMain:
@@ -21,6 +22,16 @@ class StatProMain:
         # Limpiar ventana
         for widget in self.root.winfo_children():
             widget.destroy()
+        
+        # Reconfigurar la ventana para el login
+        self.root.geometry("500x650")
+        self.root.resizable(False, False)
+        
+        # Centrar la ventana del login
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (500 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (650 // 2)
+        self.root.geometry(f'500x650+{x}+{y}')
         
         # Crear pantalla de login
         PantallaLogin(self.root, self.on_login_exitoso)
@@ -38,6 +49,16 @@ class StatProMain:
         # Limpiar ventana
         for widget in self.root.winfo_children():
             widget.destroy()
+        
+        # Reconfigurar la ventana para el menú principal
+        self.root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
+        self.root.resizable(True, True)
+        
+        # Centrar la ventana del menú principal
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (WINDOW_WIDTH // 2)
+        y = (self.root.winfo_screenheight() // 2) - (WINDOW_HEIGHT // 2)
+        self.root.geometry(f'{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}')
         
         # Crear menú principal
         MenuPrincipal(self.root, self.usuario_actual, self.on_cerrar_sesion)

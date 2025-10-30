@@ -35,7 +35,9 @@ class App:
         lbl_title = tk.Label(self.tab_estad, text="Análisis Estadístico", font=("Arial", 16))
         lbl_title.pack(pady=10)
 
-        btn_cargar = tk.Button(self.tab_estad, text="Cargar archivo CSV", command=self.cargar_archivo)
+        btn_cargar = tk.Button(self.tab_estad, text="Cargar archivo CSV", command=self.cargar_archivo, 
+                              bg="#27AE60", fg="#000000", font=("Helvetica", 10, "bold"), 
+                              activebackground="#FFEB3B", activeforeground="#000000")
         btn_cargar.pack(pady=5)
 
         # Área de resultados
@@ -96,7 +98,9 @@ class App:
         self.entry_espacio = tk.Entry(frame_espacio, width=80)
         self.entry_espacio.grid(row=0, column=1, padx=5)
 
-        btn_def_espacio = tk.Button(frame_espacio, text="Definir Espacio Muestral", command=self.definir_espacio)
+        btn_def_espacio = tk.Button(frame_espacio, text="Definir Espacio Muestral", command=self.definir_espacio,
+                                   bg="#27AE60", fg="#000000", font=("Helvetica", 10, "bold"),
+                                   activebackground="#FFEB3B", activeforeground="#000000")
         btn_def_espacio.grid(row=0, column=2, padx=5)
 
         # Entrada de eventos
@@ -111,7 +115,9 @@ class App:
         self.entry_elementos_evento = tk.Entry(frame_eventos, width=50)
         self.entry_elementos_evento.grid(row=0, column=3, padx=5)
 
-        btn_def_evento = tk.Button(frame_eventos, text="Definir Evento", command=self.definir_evento)
+        btn_def_evento = tk.Button(frame_eventos, text="Definir Evento", command=self.definir_evento,
+                                  bg="#16A085", fg="#000000", font=("Helvetica", 10, "bold"),
+                                  activebackground="#FFEB3B", activeforeground="#000000")
         btn_def_evento.grid(row=0, column=4, padx=5)
 
         # Área de resultados de probabilidad
@@ -148,7 +154,9 @@ class App:
             ("Resumen Eventos", self.resumen_eventos),
         ]
         for i, (text, cmd) in enumerate(botones):
-            tk.Button(frame_ops, text=text, width=20, command=cmd).grid(row=1, column=i, padx=5, pady=3)
+            tk.Button(frame_ops, text=text, width=20, command=cmd,
+                     bg="#3498DB", fg="#000000", font=("Helvetica", 9, "bold"),
+                     activebackground="#FFEB3B", activeforeground="#000000").grid(row=1, column=i, padx=5, pady=3)
 
         # BOTONES NUEVOS: Distribución, Bayes, Árbol
         botones_nuevos = [
@@ -158,7 +166,9 @@ class App:
             ("Árbol de Probabilidades", self.generar_arbol)
         ]
         for i, (text, cmd) in enumerate(botones_nuevos):
-            tk.Button(frame_ops, text=text, width=20, command=cmd).grid(row=2, column=i, padx=5, pady=3)
+            tk.Button(frame_ops, text=text, width=20, command=cmd,
+                     bg="#E74C3C", fg="#000000", font=("Helvetica", 9, "bold"),
+                     activebackground="#FFEB3B", activeforeground="#000000").grid(row=2, column=i, padx=5, pady=3)
 
     # ------------------ FUNCIONES PROBABILIDAD ------------------ #
     def definir_espacio(self):
