@@ -1,5 +1,5 @@
 """
-Pantalla de Login para StatPro
+Pantalla de Login para StatPro - VERSIÓN CORREGIDA
 """
 import tkinter as tk
 from tkinter import messagebox
@@ -34,8 +34,8 @@ class PantallaLogin:
     def centrar_ventana(self):
         """Centra la ventana en la pantalla"""
         self.root.update_idletasks()
-        width = self.root.winfo_width()
-        height = self.root.winfo_height()
+        width = 500
+        height = 650
         x = (self.root.winfo_screenwidth() // 2) - (width // 2)
         y = (self.root.winfo_screenheight() // 2) - (height // 2)
         self.root.geometry(f'{width}x{height}+{x}+{y}')
@@ -152,13 +152,18 @@ class PantallaLogin:
         )
         chk_mostrar.pack(anchor='w', pady=(0, 20))
         
-        # Botón Iniciar Sesión
+        # Botón Iniciar Sesión (SIN usar **STYLE_BTN_PRIMARY)
         btn_login = tk.Button(
             frame_login,
             text="🔐 INICIAR SESIÓN",
             command=self.validar_login,
-            **STYLE_BTN_PRIMARY,
-            width=25
+            bg=COLOR_PRIMARY,
+            fg=TEXT_LIGHT,
+            font=FONT_BUTTON,
+            width=25,
+            height=2,
+            relief="flat",
+            cursor="hand2"
         )
         btn_login.pack(pady=10)
         
@@ -266,7 +271,7 @@ class PantallaLogin:
 # Función para probar el login independientemente
 def test_login():
     def on_login_exitoso(usuario):
-        print(f"Login exitoso para: {usuario}")
+        print(f"✅ Login exitoso para: {usuario}")
         messagebox.showinfo("Test", f"Login exitoso!\nUsuario: {usuario}")
         root.destroy()
     

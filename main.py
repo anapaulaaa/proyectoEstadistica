@@ -1,52 +1,69 @@
-# Importar la interfaz gráfica
-from interfaz.interfaz_grafica import main as gui_main
+"""
+MAIN - StatPro
+Punto de entrada principal del sistema
+Integra: Login → Menú → Funcionalidades
+"""
+import tkinter as tk
+from interfaz.pantalla_login import PantallaLogin
+from interfaz.menu_principal import MenuPrincipal
 
-def main_consola():
-    """Versión original para consola"""
-    from utils.cargar_datos import importar_csv
-    from estadistica_descriptiva.analisis_estadistico import calcular_tendencia_central, generar_dfs, generar_dfsvai
-    from estadistica_descriptiva.graficas import graficar_tendencia, graficar_frecuencia
-    from utils.exportar_resultados import exportar_resultados
 
-    # Cargar datos
-    ruta = 'datos/datos.csv'
-    datos = importar_csv(ruta)
-
-    if datos is not None:
-        # Calcular medidas estadísticas
-        tendencia = calcular_tendencia_central(datos['Edad'])
-
-        # Generar cuadros estadísticos
-        dfs = generar_dfs(datos['Edad'])
-        dfsvai = generar_dfsvai(datos['Edad'])
-
-        # Mostrar resultados
-        print("\nMedidas de Tendencia Central:")
-        print(tendencia)
-
-        print("\nCuadro de Frecuencia Simple:")
-        print(dfs)
-
-        print("\nCuadro de Frecuencia Agrupada con Intervalos:")
-        print(dfsvai)
-
-        # Graficar
-        graficar_tendencia(datos['Edad'])
-        graficar_frecuencia(dfs, 'simple')
-        graficar_frecuencia(dfsvai, 'agrupada')
-
-        # Exportar resultados a CSV
-        exportar_resultados(tendencia, dfs, dfsvai)
+class StatProMain:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.usuario_actual = None
         
-        print("\n¡Análisis completado! Los resultados se han exportado a la carpeta 'datos'.")
-    else:
-        print("Error: No se pudo cargar el archivo 'datos/datos.csv'")
-        print("Asegúrate de que el archivo existe y está en la carpeta 'datos'.")
+        # Iniciar con pantalla de login
+        self.mostrar_login()
+    
+    def mostrar_login(self):
+        """Muestra la pantalla de login"""
+        # Limpiar ventana
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        
+        # Crear pantalla de login
+        PantallaLogin(self.root, self.on_login_exitoso)
+    
+    def on_login_exitoso(self, usuario):
+        """Callback cuando el login es exitoso"""
+        self.usuario_actual = usuario
+        print(f"✅ Usuario logueado: {usuario}")
+        
+        # Mostrar menú principal
+        self.mostrar_menu_principal()
+    
+    def mostrar_menu_principal(self):
+        """Muestra el menú principal"""
+        # Limpiar ventana
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        
+        # Crear menú principal
+        MenuPrincipal(self.root, self.usuario_actual, self.on_cerrar_sesion)
+    
+    def on_cerrar_sesion(self):
+        """Callback cuando se cierra sesión"""
+        print("🚪 Cerrando sesión...")
+        self.usuario_actual = None
+        
+        # Volver al login
+        self.mostrar_login()
+    
+    def run(self):
+        """Inicia la aplicación"""
+        self.root.mainloop()
+
 
 def main():
-    """Ejecutar interfaz gráfica por defecto"""
-    print("Iniciando Analizador Estadístico - Interfaz Gráfica...")
-    gui_main()
+    """Función principal"""
+    print("=" * 60)
+    print("🚀 Iniciando StatPro - Analizador Estadístico")
+    print("=" * 60)
+    
+    app = StatProMain()
+    app.run()
+
 
 if __name__ == "__main__":
     main()
