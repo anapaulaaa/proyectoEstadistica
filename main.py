@@ -1,12 +1,12 @@
 # Importar la interfaz gráfica
-from interfaz_grafica import main as gui_main
+from interfaz.interfaz_grafica import main as gui_main
 
 def main_consola():
     """Versión original para consola"""
-    from cargar_datos import importar_csv
-    from analisis_estadistico import calcular_tendencia_central, generar_dfs, generar_dfsvai
-    from graficas import graficar_tendencia, graficar_frecuencia
-    from exportar_resultados import exportar_resultados
+    from utils.cargar_datos import importar_csv
+    from estadistica_descriptiva.analisis_estadistico import calcular_tendencia_central, generar_dfs, generar_dfsvai
+    from estadistica_descriptiva.graficas import graficar_tendencia, graficar_frecuencia
+    from utils.exportar_resultados import exportar_resultados
 
     # Cargar datos
     ruta = 'datos/datos.csv'

@@ -1,15 +1,15 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog as sd
 import pandas as pd
-from cargar_datos import importar_csv
-from analisis_estadistico import calcular_tendencia_central, generar_dfs, generar_dfsvai
-from graficas import graficar_tendencia, graficar_frecuencia
-from exportar_resultados import exportar_resultados
-from probabilidades import ProbabilidadesElementales
+from utils.cargar_datos import importar_csv
+from estadistica_descriptiva.analisis_estadistico import calcular_tendencia_central, generar_dfs, generar_dfsvai
+from estadistica_descriptiva.graficas import graficar_tendencia, graficar_frecuencia
+from utils.exportar_resultados import exportar_resultados
+from estadistica_inferencial.probabilidades import ProbabilidadesElementales
 import matplotlib.pyplot as plt
 from math import comb
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from diagramas_arbol import DiagramaArbol  # Tu clase del árbol de probabilidades
+from estadistica_inferencial.diagramas_arbol import DiagramaArbol  # Tu clase del árbol de probabilidades
 
 class App:
     def __init__(self, root):
