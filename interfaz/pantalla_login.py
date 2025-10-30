@@ -95,10 +95,26 @@ class PantallaLogin:
             font=FONT_NORMAL,
             width=35,
             relief='solid',
-            borderwidth=1
+            borderwidth=1,
+            fg='gray'
         )
         self.entry_usuario.pack(pady=(0, 15), ipady=8)
+        self.entry_usuario.insert(0, "Ingresa tu usuario")
         self.entry_usuario.focus()
+        
+        # Placeholder behavior para usuario
+        def on_entry_usuario_focus_in(event):
+            if self.entry_usuario.get() == "Ingresa tu usuario":
+                self.entry_usuario.delete(0, tk.END)
+                self.entry_usuario.config(fg='black')
+        
+        def on_entry_usuario_focus_out(event):
+            if self.entry_usuario.get() == "":
+                self.entry_usuario.insert(0, "Ingresa tu usuario")
+                self.entry_usuario.config(fg='gray')
+        
+        self.entry_usuario.bind("<FocusIn>", on_entry_usuario_focus_in)
+        self.entry_usuario.bind("<FocusOut>", on_entry_usuario_focus_out)
         
         # Campo Contraseña
         lbl_password = tk.Label(
@@ -116,11 +132,29 @@ class PantallaLogin:
             width=35,
             show="●",
             relief='solid',
-            borderwidth=1
+            borderwidth=1,
+            fg='gray'
         )
         self.entry_password.pack(pady=(0, 10), ipady=8)
+        self.entry_password.insert(0, "●●●●●●●●")
         
-        # Bind Enter key
+        # Placeholder behavior para contraseña
+        def on_entry_password_focus_in(event):
+            if self.entry_password.get() == "●●●●●●●●":
+                self.entry_password.delete(0, tk.END)
+                self.entry_password.config(show="●", fg='black')
+        
+        def on_entry_password_focus_out(event):
+            if self.entry_password.get() == "":
+                self.entry_password.config(show="")
+                self.entry_password.insert(0, "●●●●●●●●")
+                self.entry_password.config(fg='gray')
+        
+        self.entry_password.bind("<FocusIn>", on_entry_password_focus_in)
+        self.entry_password.bind("<FocusOut>", on_entry_password_focus_out)
+        
+        # Bind Enter key para ambos campos
+        self.entry_usuario.bind('<Return>', lambda e: self.entry_password.focus())
         self.entry_password.bind('<Return>', lambda e: self.validar_login())
         
         # Checkbox mostrar contraseña
@@ -217,11 +251,21 @@ class PantallaLogin:
         usuario = self.entry_usuario.get().strip()
         password = self.entry_password.get()
         
-        if not usuario or not password:
+        # Verificar placeholders
+        if usuario == "Ingresa tu usuario" or usuario == "":
             messagebox.showwarning(
-                "Campos vacíos",
-                "Por favor ingrese usuario y contraseña"
+                "Campo vacío",
+                "Por favor ingrese su usuario"
             )
+            self.entry_usuario.focus()
+            return
+        
+        if password == "●●●●●●●●" or password == "":
+            messagebox.showwarning(
+                "Campo vacío",
+                "Por favor ingrese su contraseña"
+            )
+            self.entry_password.focus()
             return
         
         # Validar contra usuarios predefinidos
@@ -236,7 +280,11 @@ class PantallaLogin:
                 "Error",
                 f"{ICONO_ERROR} {MSG_LOGIN_FALLIDO}\n\nVerifique sus credenciales e intente nuevamente."
             )
+            # Limpiar contraseña y restaurar placeholder
             self.entry_password.delete(0, tk.END)
+            self.entry_password.config(show="")
+            self.entry_password.insert(0, "●●●●●●●●")
+            self.entry_password.config(fg='gray')
             self.entry_usuario.focus()
     
     def login_invitado(self):

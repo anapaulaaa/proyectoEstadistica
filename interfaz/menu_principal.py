@@ -9,7 +9,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.gridspec as gridspec
 from math import comb
 
@@ -28,6 +28,8 @@ from estadistica_inferencial.distribucion_poisson import DistribucionPoisson
 from estadistica_inferencial.bayes import TeoremaBayes
 from estadistica_inferencial.regresion_correlacion import CorrelacionLineal, RegresionLinealSimple, RegresionNoLineal
 from estadistica_inferencial.diagramas_arbol import DiagramaArbol
+from estadistica_inferencial.chi_cuadrado import PruebaChiCuadrado
+from utils.tooltip import crear_tooltip
 
 
 class VentanaAnalisis(tk.Toplevel):
@@ -70,7 +72,7 @@ class VentanaAnalisis(tk.Toplevel):
             btn_container = tk.Frame(self.btn_frame, bg=BG_LIGHT)
             btn_container.pack()
             
-            tk.Button(
+            btn_cargar = tk.Button(
                 btn_container,
                 text=f"{ICONO_ARCHIVO} Cargar Datos CSV",
                 command=self.cargar_datos,
@@ -83,9 +85,11 @@ class VentanaAnalisis(tk.Toplevel):
                 pady=10,
                 activebackground="#FFEB3B",
                 activeforeground="#000000"
-            ).pack(side='left', padx=5)
+            )
+            btn_cargar.pack(side='left', padx=5)
+            crear_tooltip(btn_cargar, "Importa datos desde un archivo CSV para análisis")
             
-            tk.Button(
+            btn_random = tk.Button(
                 btn_container,
                 text="🎲 Generar Datos Aleatorios",
                 command=self.generar_datos_random,
@@ -98,7 +102,9 @@ class VentanaAnalisis(tk.Toplevel):
                 pady=10,
                 activebackground="#FFEB3B",
                 activeforeground="#000000"
-            ).pack(side='left', padx=5)
+            )
+            btn_random.pack(side='left', padx=5)
+            crear_tooltip(btn_random, "Genera datos aleatorios para probar el análisis sin CSV")
         
         # ===== CONTENEDOR CON PESTAÑAS =====
         self.notebook = ttk.Notebook(main_frame)
@@ -153,7 +159,7 @@ class VentanaAnalisis(tk.Toplevel):
         frame_botones = tk.Frame(main_frame, bg=BG_LIGHT)
         frame_botones.pack(fill='x', side='bottom', pady=10)
         
-        tk.Button(
+        btn_exportar = tk.Button(
             frame_botones,
             text="💾 Exportar Resultados",
             command=self.exportar_resultados,
@@ -166,9 +172,11 @@ class VentanaAnalisis(tk.Toplevel):
             pady=8,
             activebackground="#FFEB3B",
             activeforeground="#000000"
-        ).pack(side='left', padx=5)
+        )
+        btn_exportar.pack(side='left', padx=5)
+        crear_tooltip(btn_exportar, "Guarda los resultados en un archivo de texto")
         
-        tk.Button(
+        btn_imprimir = tk.Button(
             frame_botones,
             text="🖨️ Imprimir",
             command=self.imprimir,
@@ -181,9 +189,11 @@ class VentanaAnalisis(tk.Toplevel):
             pady=8,
             activebackground="#FFEB3B",
             activeforeground="#000000"
-        ).pack(side='left', padx=5)
+        )
+        btn_imprimir.pack(side='left', padx=5)
+        crear_tooltip(btn_imprimir, "Imprime los resultados actuales")
         
-        tk.Button(
+        btn_limpiar = tk.Button(
             frame_botones,
             text="🔄 Limpiar",
             command=self.limpiar,
@@ -196,9 +206,11 @@ class VentanaAnalisis(tk.Toplevel):
             pady=8,
             activebackground="#FFEB3B",
             activeforeground="#000000"
-        ).pack(side='left', padx=5)
+        )
+        btn_limpiar.pack(side='left', padx=5)
+        crear_tooltip(btn_limpiar, "Borra todos los resultados y gráficos mostrados")
         
-        tk.Button(
+        btn_regresar = tk.Button(
             frame_botones,
             text="⬅️ Regresar al Menú",
             command=self.destroy,
@@ -211,9 +223,11 @@ class VentanaAnalisis(tk.Toplevel):
             pady=8,
             activebackground="#FFEB3B",
             activeforeground="#000000"
-        ).pack(side='right', padx=5)
+        )
+        btn_regresar.pack(side='right', padx=5)
+        crear_tooltip(btn_regresar, "Vuelve al menú principal sin cerrar la aplicación")
         
-        tk.Button(
+        btn_cerrar = tk.Button(
             frame_botones,
             text="❌ Cerrar Ventana",
             command=self.destroy,
@@ -226,7 +240,9 @@ class VentanaAnalisis(tk.Toplevel):
             pady=8,
             activebackground="#FFEB3B",
             activeforeground="#000000"
-        ).pack(side='right', padx=5)
+        )
+        btn_cerrar.pack(side='right', padx=5)
+        crear_tooltip(btn_cerrar, "Cierra esta ventana de análisis")
     
     def cargar_datos(self):
         """Carga datos desde CSV"""
@@ -527,6 +543,15 @@ class MenuPrincipal:
         # Colores claros para fondo
         colores_fondo = ["#E3F2FD", "#E8F5E9", "#FFF3E0", "#F3E5F5", "#E0F7FA"]
         
+        # Tooltips para cada botón
+        tooltips_desc = [
+            "Genera tablas de frecuencia simple y agrupada con gráficos de barras",
+            "Calcula media, mediana, moda, media geométrica y armónica",
+            "Determina cuartiles, deciles, percentiles y crea boxplots",
+            "Calcula rango, varianza, desviación estándar y coeficiente de variación",
+            "Analiza asimetría y curtosis de la distribución de datos"
+        ]
+        
         botones = [
             ("📊 Cuadros y Gráficos Estadísticos", colores_fondo[0], self.abrir_cuadros),
             ("📈 Medidas de Tendencia Central", colores_fondo[1], self.abrir_tendencia),
@@ -535,7 +560,7 @@ class MenuPrincipal:
             ("📉 Medidas de Forma", colores_fondo[4], self.abrir_forma),
         ]
         
-        for texto, color_fondo, comando in botones:
+        for i, (texto, color_fondo, comando) in enumerate(botones):
             btn = tk.Button(
                 frame,
                 text=texto,
@@ -555,6 +580,9 @@ class MenuPrincipal:
                 activeforeground="#000000"
             )
             btn.pack(fill='x', pady=10, padx=10)
+            
+            # Agregar tooltip
+            crear_tooltip(btn, tooltips_desc[i])
             
             # Efectos hover - mantiene texto negro y bold
             def on_enter(e, b=btn):
@@ -582,17 +610,28 @@ class MenuPrincipal:
         frame.pack(side='left', fill='both', expand=True, padx=(10, 0))
         
         # Colores claros para fondo
-        colores_fondo = ["#FCE4EC", "#F1F8E9", "#FFF9C4", "#E1F5FE", "#FFEBEE"]
+        colores_fondo = ["#FCE4EC", "#F1F8E9", "#FFF9C4", "#E1F5FE", "#FFEBEE", "#E8EAF6"]
+        
+        # Tooltips para cada botón
+        tooltips_inf = [
+            "Calcula probabilidades elementales: unión, intersección, complemento",
+            "Aplica el teorema de Bayes para probabilidades condicionales",
+            "Trabaja con distribuciones Normal, Binomial y Poisson",
+            "Calcula correlación entre variables y regresión lineal simple",
+            "Prueba de independencia y bondad de ajuste con Chi-cuadrado",
+            "Genera árboles de probabilidad con múltiples niveles"
+        ]
         
         botones = [
             ("🎲 Cálculo de Probabilidades", colores_fondo[0], self.abrir_probabilidades),
             ("🔄 Teorema de Bayes", colores_fondo[1], self.abrir_bayes),
             ("📊 Distribuciones (Normal, Binomial, Poisson)", colores_fondo[2], self.abrir_distribuciones),
             ("📈 Correlación y Regresión Simple", colores_fondo[3], self.abrir_regresion),
+            ("χ² Prueba de Chi-cuadrado", colores_fondo[5], self.abrir_chi_cuadrado),
             ("🌳 Árboles de Decisión", colores_fondo[4], self.abrir_arboles),
         ]
         
-        for texto, color_fondo, comando in botones:
+        for i, (texto, color_fondo, comando) in enumerate(botones):
             btn = tk.Button(
                 frame,
                 text=texto,
@@ -613,12 +652,18 @@ class MenuPrincipal:
             )
             btn.pack(fill='x', pady=10, padx=10)
             
+            # Agregar tooltip
+            crear_tooltip(btn, tooltips_inf[i])
+            
             # Efectos hover - mantiene texto negro y bold
             def on_enter(e, b=btn):
                 b.config(bg="#FFEB3B", relief="sunken", fg="#000000", font=("Helvetica", 13, "bold"))
             
             def on_leave(e, b=btn, original_color=color_fondo):
                 b.config(bg=original_color, relief="raised", fg="#000000", font=("Helvetica", 13, "bold"))
+            
+            btn.bind("<Enter>", on_leave)
+            btn.bind("<Leave>", on_leave)
             
             btn.bind("<Enter>", on_enter)
             btn.bind("<Leave>", on_leave)
@@ -1458,20 +1503,56 @@ class MenuPrincipal:
                 
                 binom = DistribucionBinomial(n, p)
                 resultado = binom.probabilidad(k)
+                stats = binom.estadisticas()
                 
                 text = f"{'='*60}\nDISTRIBUCIÓN BINOMIAL\n{'='*60}\n\n"
-                text += f"Parámetros: n={n}, p={p}\n"
+                text += f"Parámetros: n={n}, p={p}\n\n"
+                text += f"PROBABILIDAD:\n"
                 text += f"P(X = {k}) = {resultado['probabilidad']:.6f}\n"
                 text += f"Porcentaje: {resultado['porcentaje']}%\n"
-                text += f"\nFórmula: {resultado['formula']}\n"
+                text += f"\nFórmula: {resultado['formula']}\n\n"
+                text += f"ESTADÍSTICAS:\n"
+                text += f"Media: {stats['media']:.4f}\n"
+                text += f"Varianza: {stats['varianza']:.4f}\n"
+                text += f"Desv. Estándar: {stats['desviacion_estandar']:.4f}\n"
+                text += f"Moda: {stats['moda']}\n"
                 
                 text_binom.delete("1.0", tk.END)
                 text_binom.insert(tk.END, text)
             except Exception as e:
                 messagebox.showerror("Error", str(e))
         
-        tk.Button(tab_binom, text="Calcular", command=calc_binomial, 
-                 bg=COLOR_PRIMARY, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(pady=5)
+        def graficar_binomial():
+            try:
+                n = int(entry_n.get())
+                p = float(entry_p.get())
+                
+                binom = DistribucionBinomial(n, p)
+                fig = binom.graficar(figsize=(14, 8))
+                
+                # Mostrar en ventana nueva
+                ventana_graf = tk.Toplevel(ventana)
+                ventana_graf.title("Gráficas - Distribución Binomial")
+                ventana_graf.geometry("1200x700")
+                
+                canvas = FigureCanvasTkAgg(fig, master=ventana_graf)
+                canvas.draw()
+                canvas.get_tk_widget().pack(fill='both', expand=True)
+                
+                toolbar = NavigationToolbar2Tk(canvas, ventana_graf)
+                toolbar.update()
+                
+            except Exception as e:
+                messagebox.showerror("Error", str(e))
+        
+        frame_botones_binom = tk.Frame(tab_binom)
+        frame_botones_binom.pack(pady=5)
+        
+        tk.Button(frame_botones_binom, text="📊 Calcular", command=calc_binomial, 
+                 bg=COLOR_PRIMARY, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(side='left', padx=5)
+        
+        tk.Button(frame_botones_binom, text="📈 Ver Gráficas", command=graficar_binomial,
+                 bg=COLOR_SUCCESS, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(side='left', padx=5)
         
         # Tab Normal
         tab_normal = tk.Frame(notebook)
@@ -1504,20 +1585,78 @@ class MenuPrincipal:
                 x = float(entry_x.get())
                 
                 normal = DistribucionNormal(mu, sigma)
-                prob = normal.probabilidad_menor(x)
+                prob_menor = normal.probabilidad_menor(x)
+                prob_mayor = normal.probabilidad_mayor(x)
+                stats = normal.estadisticas()
                 
                 text = f"{'='*60}\nDISTRIBUCIÓN NORMAL\n{'='*60}\n\n"
-                text += f"Parámetros: μ={mu}, σ={sigma}\n"
-                text += f"P(X < {x}) = {prob['probabilidad']:.6f}\n"
-                text += f"Porcentaje: {prob['porcentaje']}%\n"
+                text += f"Parámetros: μ={mu}, σ={sigma}\n\n"
+                text += f"PROBABILIDADES:\n"
+                text += f"P(X < {x}) = {prob_menor['probabilidad']:.6f} ({prob_menor['porcentaje']}%)\n"
+                text += f"P(X > {x}) = {prob_mayor['probabilidad']:.6f} ({prob_mayor['porcentaje']}%)\n\n"
+                text += f"ESTADÍSTICAS:\n"
+                text += f"Media: {stats['media']}\n"
+                text += f"Mediana: {stats['mediana']}\n"
+                text += f"Desv. Estándar: {stats['desviacion_estandar']}\n"
+                text += f"Varianza: {stats['varianza']}\n"
                 
                 text_normal.delete("1.0", tk.END)
                 text_normal.insert(tk.END, text)
             except Exception as e:
                 messagebox.showerror("Error", str(e))
         
-        tk.Button(tab_normal, text="Calcular", command=calc_normal, 
-                 bg=COLOR_SECONDARY, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(pady=5)
+        def graficar_normal():
+            try:
+                mu = float(entry_mu.get())
+                sigma = float(entry_sigma.get())
+                
+                normal = DistribucionNormal(mu, sigma)
+                
+                # Crear figura con 3 subgráficas
+                fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+                fig.suptitle(f'Distribución Normal: μ={mu}, σ={sigma}', 
+                           fontsize=16, fontweight='bold')
+                
+                # Gráfica 1: Densidad básica
+                normal.graficar_densidad(ax=axes[0])
+                
+                # Gráfica 2: Con área sombreada (si hay x)
+                if entry_x.get():
+                    x_val = float(entry_x.get())
+                    normal.graficar_densidad(ax=axes[1], 
+                                           mostrar_areas={'a': x_val})
+                    axes[1].set_title(f'Área P(X ≤ {x_val})')
+                else:
+                    normal.graficar_densidad(ax=axes[1])
+                
+                # Gráfica 3: Regla empírica
+                normal.graficar_regla_empirica(ax=axes[2])
+                
+                plt.tight_layout()
+                
+                # Mostrar en ventana nueva
+                ventana_graf = tk.Toplevel(ventana)
+                ventana_graf.title("Gráficas - Distribución Normal")
+                ventana_graf.geometry("1400x600")
+                
+                canvas = FigureCanvasTkAgg(fig, master=ventana_graf)
+                canvas.draw()
+                canvas.get_tk_widget().pack(fill='both', expand=True)
+                
+                toolbar = NavigationToolbar2Tk(canvas, ventana_graf)
+                toolbar.update()
+                
+            except Exception as e:
+                messagebox.showerror("Error", str(e))
+        
+        frame_botones_normal = tk.Frame(tab_normal)
+        frame_botones_normal.pack(pady=5)
+        
+        tk.Button(frame_botones_normal, text="📊 Calcular", command=calc_normal, 
+                 bg=COLOR_SECONDARY, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(side='left', padx=5)
+        
+        tk.Button(frame_botones_normal, text="📈 Ver Gráficas", command=graficar_normal,
+                 bg=COLOR_SUCCESS, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(side='left', padx=5)
         
         # Tab Poisson
         tab_poisson = tk.Frame(notebook)
@@ -1546,20 +1685,66 @@ class MenuPrincipal:
                 
                 poisson = DistribucionPoisson(lambd)
                 resultado = poisson.probabilidad(k)
+                stats = poisson.estadisticas()
                 
                 text = f"{'='*60}\nDISTRIBUCIÓN DE POISSON\n{'='*60}\n\n"
-                text += f"Parámetro: λ={lambd}\n"
+                text += f"Parámetro: λ={lambd}\n\n"
+                text += f"PROBABILIDAD:\n"
                 text += f"P(X = {k}) = {resultado['probabilidad']:.6f}\n"
                 text += f"Porcentaje: {resultado['porcentaje']}%\n"
-                text += f"\nFórmula: {resultado['formula']}\n"
+                text += f"\nFórmula: {resultado['formula']}\n\n"
+                text += f"ESTADÍSTICAS:\n"
+                text += f"Media: {stats['media']:.4f}\n"
+                text += f"Varianza: {stats['varianza']:.4f}\n"
+                text += f"Desv. Estándar: {stats['desviacion_estandar']:.4f}\n"
                 
                 text_poisson.delete("1.0", tk.END)
                 text_poisson.insert(tk.END, text)
             except Exception as e:
                 messagebox.showerror("Error", str(e))
         
-        tk.Button(tab_poisson, text="Calcular", command=calc_poisson, 
-                 bg=COLOR_INFO, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(pady=5)
+        def graficar_poisson():
+            try:
+                lambd = float(entry_lambda.get())
+                
+                poisson = DistribucionPoisson(lambd)
+                
+                # Crear figura con 2 subgráficas
+                fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+                fig.suptitle(f'Distribución de Poisson: λ={lambd}', 
+                           fontsize=16, fontweight='bold')
+                
+                # Gráfica 1: Probabilidades
+                poisson.graficar_probabilidades(ax=axes[0])
+                
+                # Gráfica 2: Acumulada
+                poisson.graficar_acumulada(ax=axes[1])
+                
+                plt.tight_layout()
+                
+                # Mostrar en ventana nueva
+                ventana_graf = tk.Toplevel(ventana)
+                ventana_graf.title("Gráficas - Distribución de Poisson")
+                ventana_graf.geometry("1200x600")
+                
+                canvas = FigureCanvasTkAgg(fig, master=ventana_graf)
+                canvas.draw()
+                canvas.get_tk_widget().pack(fill='both', expand=True)
+                
+                toolbar = NavigationToolbar2Tk(canvas, ventana_graf)
+                toolbar.update()
+                
+            except Exception as e:
+                messagebox.showerror("Error", str(e))
+        
+        frame_botones_poisson = tk.Frame(tab_poisson)
+        frame_botones_poisson.pack(pady=5)
+        
+        tk.Button(frame_botones_poisson, text="📊 Calcular", command=calc_poisson, 
+                 bg=COLOR_INFO, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(side='left', padx=5)
+        
+        tk.Button(frame_botones_poisson, text="📈 Ver Gráficas", command=graficar_poisson,
+                 bg=COLOR_SUCCESS, fg="#000000", font=FONT_BUTTON, activebackground="#FFEB3B", activeforeground="#000000").pack(side='left', padx=5)
     
     def abrir_regresion(self):
         """Regresión y Correlación Simple"""
@@ -1808,6 +1993,259 @@ class MenuPrincipal:
             fg=TEXT_MUTED,
             bg=BG_WHITE
         ).pack(expand=True)
+    
+    def abrir_chi_cuadrado(self):
+        """Prueba de Chi-cuadrado"""
+        ventana = tk.Toplevel(self.root)
+        ventana.title("χ² Prueba de Chi-cuadrado")
+        ventana.geometry("1200x800")
+        ventana.configure(bg=BG_LIGHT)
+        
+        chi = PruebaChiCuadrado()
+        
+        # Título
+        tk.Label(
+            ventana,
+            text="χ² PRUEBA DE CHI-CUADRADO",
+            font=("Helvetica", 16, "bold"),
+            bg=BG_LIGHT,
+            fg=COLOR_PRIMARY
+        ).pack(pady=15)
+        
+        # Notebook para diferentes tipos de pruebas
+        notebook = ttk.Notebook(ventana)
+        notebook.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # ========== PESTAÑA 1: PRUEBA DE INDEPENDENCIA ==========
+        tab_independencia = tk.Frame(notebook, bg=BG_WHITE)
+        notebook.add(tab_independencia, text="Prueba de Independencia")
+        
+        frame_input_ind = tk.LabelFrame(tab_independencia, text="Tabla de Contingencia (Frecuencias Observadas)",
+                                        padx=15, pady=15, bg=BG_WHITE, font=("Helvetica", 11, "bold"))
+        frame_input_ind.pack(fill='x', padx=10, pady=10)
+        
+        tk.Label(frame_input_ind, text="Ingresa los datos de la tabla de contingencia:", 
+                bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=0, columnspan=4, pady=5, sticky='w')
+        
+        tk.Label(frame_input_ind, text="Ejemplo: Género (filas) vs Preferencia (columnas)",
+                bg=BG_WHITE, font=("Helvetica", 9), fg=TEXT_MUTED).grid(row=1, column=0, columnspan=4, sticky='w')
+        
+        # Entradas para la tabla (2x3 por defecto)
+        tk.Label(frame_input_ind, text="Fila 1:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=2, column=0, sticky='w', pady=5)
+        entry_f1_c1 = tk.Entry(frame_input_ind, width=8)
+        entry_f1_c1.grid(row=2, column=1, padx=2)
+        entry_f1_c1.insert(0, "30")
+        entry_f1_c2 = tk.Entry(frame_input_ind, width=8)
+        entry_f1_c2.grid(row=2, column=2, padx=2)
+        entry_f1_c2.insert(0, "20")
+        entry_f1_c3 = tk.Entry(frame_input_ind, width=8)
+        entry_f1_c3.grid(row=2, column=3, padx=2)
+        entry_f1_c3.insert(0, "10")
+        
+        tk.Label(frame_input_ind, text="Fila 2:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=3, column=0, sticky='w', pady=5)
+        entry_f2_c1 = tk.Entry(frame_input_ind, width=8)
+        entry_f2_c1.grid(row=3, column=1, padx=2)
+        entry_f2_c1.insert(0, "15")
+        entry_f2_c2 = tk.Entry(frame_input_ind, width=8)
+        entry_f2_c2.grid(row=3, column=2, padx=2)
+        entry_f2_c2.insert(0, "25")
+        entry_f2_c3 = tk.Entry(frame_input_ind, width=8)
+        entry_f2_c3.grid(row=3, column=3, padx=2)
+        entry_f2_c3.insert(0, "20")
+        
+        # Área de resultados
+        text_result_ind = scrolledtext.ScrolledText(tab_independencia, height=20, width=100, 
+                                                     font=("Consolas", 10), bg=BG_WHITE)
+        text_result_ind.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Frame para gráfico
+        frame_graf_ind = tk.Frame(tab_independencia, bg=BG_WHITE)
+        frame_graf_ind.pack(fill='both', expand=True, padx=10, pady=5)
+        
+        def calcular_independencia():
+            try:
+                # Obtener valores
+                fila1 = [float(entry_f1_c1.get()), float(entry_f1_c2.get()), float(entry_f1_c3.get())]
+                fila2 = [float(entry_f2_c1.get()), float(entry_f2_c2.get()), float(entry_f2_c3.get())]
+                tabla = np.array([fila1, fila2])
+                
+                # Realizar prueba
+                resultados = chi.prueba_independencia(tabla)
+                
+                # Mostrar resultados
+                texto = "=" * 100 + "\n"
+                texto += "PRUEBA DE INDEPENDENCIA CHI-CUADRADO (χ²)\n"
+                texto += "=" * 100 + "\n\n"
+                
+                texto += "HIPÓTESIS:\n"
+                texto += "H₀: Las variables son independientes (no hay relación)\n"
+                texto += "H₁: Las variables son dependientes (sí hay relación)\n\n"
+                
+                texto += "TABLA DE CONTINGENCIA (Observados):\n"
+                texto += f"{tabla}\n\n"
+                
+                texto += "VALORES ESPERADOS (bajo H₀):\n"
+                texto += f"{resultados['valores_esperados']}\n\n"
+                
+                texto += "RESULTADOS DE LA PRUEBA:\n"
+                texto += f"Estadístico χ² = {resultados['chi2_estadistico']:.4f}\n"
+                texto += f"Grados de libertad = {resultados['grados_libertad']}\n"
+                texto += f"Valor p = {resultados['p_value']:.4f}\n"
+                texto += f"Nivel de significancia α = {resultados['alpha']}\n\n"
+                
+                texto += "DECISIÓN:\n"
+                texto += f"{resultados['decision']}\n\n"
+                
+                texto += "CONCLUSIÓN:\n"
+                texto += f"{resultados['conclusion']}\n\n"
+                
+                texto += "INTERPRETACIÓN:\n"
+                if resultados['p_value'] < resultados['alpha']:
+                    texto += f"Con un valor p = {resultados['p_value']:.4f} < α = {resultados['alpha']}, hay evidencia\n"
+                    texto += "estadística suficiente para afirmar que las variables están relacionadas.\n"
+                else:
+                    texto += f"Con un valor p = {resultados['p_value']:.4f} >= α = {resultados['alpha']}, NO hay evidencia\n"
+                    texto += "estadística suficiente para afirmar que las variables están relacionadas.\n"
+                
+                text_result_ind.delete("1.0", tk.END)
+                text_result_ind.insert(tk.END, texto)
+                
+                # Crear gráfico
+                for widget in frame_graf_ind.winfo_children():
+                    widget.destroy()
+                
+                fig = chi.graficar_heatmap(tabla, "Tabla de Contingencia - Frecuencias Observadas",
+                                          ["Fila 1", "Fila 2"], ["Col 1", "Col 2", "Col 3"])
+                
+                canvas = FigureCanvasTkAgg(fig, master=frame_graf_ind)
+                canvas.draw()
+                canvas.get_tk_widget().pack(fill='both', expand=True)
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Error al calcular:\n{str(e)}")
+        
+        btn_calc_ind = tk.Button(frame_input_ind, text="📊 Calcular Chi-cuadrado", command=calcular_independencia,
+                                bg=COLOR_SUCCESS, fg="#000000", font=("Helvetica", 11, "bold"),
+                                cursor="hand2", padx=20, pady=8, activebackground="#FFEB3B", activeforeground="#000000")
+        btn_calc_ind.grid(row=4, column=0, columnspan=4, pady=15)
+        
+        # ========== PESTAÑA 2: BONDAD DE AJUSTE ==========
+        tab_bondad = tk.Frame(notebook, bg=BG_WHITE)
+        notebook.add(tab_bondad, text="Bondad de Ajuste")
+        
+        frame_input_bon = tk.LabelFrame(tab_bondad, text="Datos para Bondad de Ajuste",
+                                        padx=15, pady=15, bg=BG_WHITE, font=("Helvetica", 11, "bold"))
+        frame_input_bon.pack(fill='x', padx=10, pady=10)
+        
+        tk.Label(frame_input_bon, text="Frecuencias Observadas (separadas por comas):",
+                bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=0, sticky='w', pady=5)
+        entry_observados = tk.Entry(frame_input_bon, width=50, font=("Helvetica", 10))
+        entry_observados.grid(row=0, column=1, padx=5, pady=5)
+        entry_observados.insert(0, "18, 22, 15, 20, 19, 26")
+        
+        tk.Label(frame_input_bon, text="Frecuencias Esperadas (separadas por comas, dejar vacío para uniforme):",
+                bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=1, column=0, sticky='w', pady=5)
+        entry_esperados = tk.Entry(frame_input_bon, width=50, font=("Helvetica", 10))
+        entry_esperados.grid(row=1, column=1, padx=5, pady=5)
+        
+        tk.Label(frame_input_bon, text="Ejemplo: Lanzamiento de dado 120 veces, esperado = 20 en cada cara",
+                bg=BG_WHITE, font=("Helvetica", 9), fg=TEXT_MUTED).grid(row=2, column=0, columnspan=2, sticky='w')
+        
+        # Área de resultados
+        text_result_bon = scrolledtext.ScrolledText(tab_bondad, height=20, width=100,
+                                                    font=("Consolas", 10), bg=BG_WHITE)
+        text_result_bon.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Frame para gráfico
+        frame_graf_bon = tk.Frame(tab_bondad, bg=BG_WHITE)
+        frame_graf_bon.pack(fill='both', expand=True, padx=10, pady=5)
+        
+        def calcular_bondad():
+            try:
+                # Obtener valores
+                obs_str = entry_observados.get().split(',')
+                observados = np.array([float(x.strip()) for x in obs_str])
+                
+                esp_str = entry_esperados.get().strip()
+                if esp_str:
+                    esperados = np.array([float(x.strip()) for x in esp_str.split(',')])
+                else:
+                    esperados = None
+                
+                # Realizar prueba
+                resultados = chi.bondad_ajuste(observados, esperados)
+                
+                # Mostrar resultados
+                texto = "=" * 100 + "\n"
+                texto += "PRUEBA DE BONDAD DE AJUSTE CHI-CUADRADO (χ²)\n"
+                texto += "=" * 100 + "\n\n"
+                
+                texto += "HIPÓTESIS:\n"
+                texto += "H₀: Los datos se ajustan a la distribución esperada\n"
+                texto += "H₁: Los datos NO se ajustan a la distribución esperada\n\n"
+                
+                texto += "DATOS:\n"
+                texto += f"Observados: {resultados['valores_observados']}\n"
+                texto += f"Esperados:  {resultados['valores_esperados']}\n\n"
+                
+                texto += "RESULTADOS DE LA PRUEBA:\n"
+                texto += f"Estadístico χ² = {resultados['chi2_estadistico']:.4f}\n"
+                texto += f"Grados de libertad = {resultados['grados_libertad']}\n"
+                texto += f"Valor p = {resultados['p_value']:.4f}\n"
+                texto += f"Nivel de significancia α = {resultados['alpha']}\n\n"
+                
+                texto += "DECISIÓN:\n"
+                texto += f"{resultados['decision']}\n\n"
+                
+                texto += "CONCLUSIÓN:\n"
+                texto += f"{resultados['conclusion']}\n\n"
+                
+                texto += "INTERPRETACIÓN:\n"
+                if resultados['p_value'] < resultados['alpha']:
+                    texto += f"Con un valor p = {resultados['p_value']:.4f} < α = {resultados['alpha']}, hay evidencia\n"
+                    texto += "de que los datos NO se ajustan a la distribución esperada.\n"
+                else:
+                    texto += f"Con un valor p = {resultados['p_value']:.4f} >= α = {resultados['alpha']}, NO hay evidencia\n"
+                    texto += "de que los datos NO se ajustan a la distribución esperada. Se acepta el ajuste.\n"
+                
+                text_result_bon.delete("1.0", tk.END)
+                text_result_bon.insert(tk.END, texto)
+                
+                # Crear gráfico
+                for widget in frame_graf_bon.winfo_children():
+                    widget.destroy()
+                
+                categorias = [f"Cat {i+1}" for i in range(len(observados))]
+                fig = chi.graficar_comparacion(resultados['valores_observados'], 
+                                              resultados['valores_esperados'],
+                                              categorias, "Comparación: Observados vs Esperados")
+                
+                canvas = FigureCanvasTkAgg(fig, master=frame_graf_bon)
+                canvas.draw()
+                canvas.get_tk_widget().pack(fill='both', expand=True)
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Error al calcular:\n{str(e)}")
+        
+        btn_calc_bon = tk.Button(frame_input_bon, text="📊 Calcular Chi-cuadrado", command=calcular_bondad,
+                                bg=COLOR_SUCCESS, fg="#000000", font=("Helvetica", 11, "bold"),
+                                cursor="hand2", padx=20, pady=8, activebackground="#FFEB3B", activeforeground="#000000")
+        btn_calc_bon.grid(row=3, column=0, columnspan=2, pady=15)
+        
+        # Botón regresar
+        tk.Button(
+            ventana,
+            text="⬅️ Regresar al Menú",
+            command=ventana.destroy,
+            bg="#9C27B0",
+            fg="#FFFFFF",
+            font=("Helvetica", 11, "bold"),
+            cursor="hand2",
+            padx=20,
+            pady=8,
+            activebackground="#FFEB3B",
+            activeforeground="#000000"
+        ).pack(pady=10)
     
     def cerrar_sesion(self):
         """Cierra la sesión"""

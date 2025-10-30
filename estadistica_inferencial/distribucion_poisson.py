@@ -100,24 +100,181 @@ class DistribucionPoisson:
         """Calcula las estadísticas de la distribución"""
         media = self.lambd
         varianza = self.lambd
-        desviacion = np.sqrt(varianza)
-        
-        # La moda en Poisson
-        if self.lambd == int(self.lambd):
-            moda = [int(self.lambd - 1), int(self.lambd)]
-        else:
-            moda = int(np.floor(self.lambd))
+        desv_std = np.sqrt(self.lambd)
         
         return {
+            'lambda': self.lambd,
             'media': media,
             'varianza': varianza,
-            'desviacion_estandar': desviacion,
-            'moda': moda,
-            'parametro_lambda': self.lambd,
-            'propiedad': 'En Poisson: Media = Varianza = λ',
+            'desviacion_estandar': desv_std,
+            'coeficiente_variacion': desv_std / media if media != 0 else None,
             'asimetria': 1 / np.sqrt(self.lambd),
-            'curtosis': 1 / self.lambd
+            'curtosis': 3 + (1 / self.lambd)
         }
+    
+    def graficar_probabilidades(self, k_max=None, ax=None):
+        """
+        Genera gráfica de barras con las probabilidades P(X=k)
+        
+        Parameters:
+        - k_max: valor máximo de k para graficar (si None, usa 3λ o mínimo 15)
+        - ax: eje de matplotlib
+        """
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Definir rango de k
+        if k_max is None:
+            k_max = max(int(3 * self.lambd) + 5, 15)
+        
+        k_values = np.arange(0, k_max + 1)
+        probabilidades = [self.probabilidad(k)['probabilidad'] for k in k_values]
+        
+        # Crear gráfica de barras
+        bars = ax.bar(k_values, probabilidades, color='steelblue', alpha=0.7, 
+                     edgecolor='navy', linewidth=1.5)
+        
+        # Resaltar la moda (valor con mayor probabilidad)
+        moda_idx = np.argmax(probabilidades)
+        bars[moda_idx].set_color('orange')
+        bars[moda_idx].set_label(f'Moda (k={k_values[moda_idx]})')
+        
+        # Línea de la media
+        ax.axvline(self.lambd, color='red', linestyle='--', linewidth=2,
+                  label=f'λ = {self.lambd}')
+        
+        ax.set_xlabel('Número de eventos (k)', fontsize=12, fontweight='bold')
+        ax.set_ylabel('P(X = k)', fontsize=12, fontweight='bold')
+        ax.set_title(f'Distribución de Poisson: λ = {self.lambd}', 
+                    fontsize=14, fontweight='bold')
+        ax.legend(loc='best')
+        ax.grid(True, alpha=0.3, axis='y')
+        ax.set_xticks(k_values)
+        
+        return ax
+    
+    def graficar_acumulada(self, k_max=None, ax=None):
+        """
+        Genera gráfica de la función de distribución acumulada F(k) = P(X ≤ k)
+        
+        Parameters:
+        - k_max: valor máximo de k
+        - ax: eje de matplotlib
+        """
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 6))
+        
+        if k_max is None:
+            k_max = max(int(3 * self.lambd) + 5, 15)
+        
+        k_values = np.arange(0, k_max + 1)
+        prob_acumuladas = [self.distribucion.cdf(k) for k in k_values]
+        
+        # Gráfica escalonada
+        ax.step(k_values, prob_acumuladas, where='post', color='darkgreen',
+               linewidth=2.5, label='F(k) = P(X ≤ k)')
+        
+        # Marcar puntos
+        ax.plot(k_values, prob_acumuladas, 'o', color='darkgreen', 
+               markersize=6, alpha=0.7)
+        
+        # Líneas de referencia
+        ax.axhline(0.5, color='gray', linestyle=':', linewidth=1, alpha=0.5)
+        ax.axhline(0.95, color='gray', linestyle=':', linewidth=1, alpha=0.5,
+                  label='95% probabilidad')
+        
+        ax.set_xlabel('Número de eventos (k)', fontsize=12, fontweight='bold')
+        ax.set_ylabel('P(X ≤ k)', fontsize=12, fontweight='bold')
+        ax.set_title(f'Función de Distribución Acumulada: λ = {self.lambd}',
+                    fontsize=14, fontweight='bold')
+        ax.legend(loc='best')
+        ax.grid(True, alpha=0.3)
+        ax.set_ylim(-0.05, 1.05)
+        ax.set_xticks(k_values)
+        
+        return ax
+    
+    def graficar_comparacion(self, otros_lambdas, k_max=None, ax=None):
+        """
+        Compara distribuciones de Poisson con diferentes valores de λ
+        
+        Parameters:
+        - otros_lambdas: lista de valores de lambda para comparar
+        - k_max: valor máximo de k
+        - ax: eje de matplotlib
+        """
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(12, 7))
+        
+        # Calcular k_max global
+        if k_max is None:
+            max_lambda = max([self.lambd] + otros_lambdas)
+            k_max = max(int(3 * max_lambda) + 5, 20)
+        
+        k_values = np.arange(0, k_max + 1)
+        
+        # Graficar distribución actual
+        probs = [self.probabilidad(k)['probabilidad'] for k in k_values]
+        ax.plot(k_values, probs, 'o-', linewidth=2.5, markersize=6,
+               label=f'λ = {self.lambd}')
+        
+        # Graficar otras distribuciones
+        colores = plt.cm.Set1(np.linspace(0, 1, len(otros_lambdas)))
+        for i, lambd in enumerate(otros_lambdas):
+            dist = DistribucionPoisson(lambd)
+            probs = [dist.probabilidad(k)['probabilidad'] for k in k_values]
+            ax.plot(k_values, probs, 'o-', linewidth=2, markersize=5,
+                   label=f'λ = {lambd}', color=colores[i], alpha=0.7)
+        
+        ax.set_xlabel('Número de eventos (k)', fontsize=12, fontweight='bold')
+        ax.set_ylabel('P(X = k)', fontsize=12, fontweight='bold')
+        ax.set_title('Comparación de Distribuciones de Poisson',
+                    fontsize=14, fontweight='bold')
+        ax.legend(loc='best')
+        ax.grid(True, alpha=0.3)
+        ax.set_xticks(k_values[::2])  # Mostrar cada 2 valores
+        
+        return ax
+    
+    def graficar_intervalos(self, intervalos, ax=None):
+        """
+        Visualiza probabilidades en intervalos específicos
+        
+        Parameters:
+        - intervalos: lista de tuplas [(k1, k2), ...] representando intervalos
+        - ax: eje de matplotlib
+        """
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 6))
+        
+        k_max = max([intervalo[1] for intervalo in intervalos]) + 5
+        k_values = np.arange(0, k_max + 1)
+        probabilidades = [self.probabilidad(k)['probabilidad'] for k in k_values]
+        
+        # Graficar todas las barras
+        ax.bar(k_values, probabilidades, color='lightgray', alpha=0.5,
+              edgecolor='gray', linewidth=1, label='Otras probabilidades')
+        
+        # Resaltar intervalos
+        colores = plt.cm.Set3(np.linspace(0, 1, len(intervalos)))
+        for i, (k1, k2) in enumerate(intervalos):
+            k_intervalo = np.arange(k1, k2 + 1)
+            probs_intervalo = [probabilidades[k] for k in k_intervalo if k < len(probabilidades)]
+            prob_total = sum(probs_intervalo)
+            
+            ax.bar(k_intervalo, probs_intervalo, color=colores[i], alpha=0.8,
+                  edgecolor='black', linewidth=1.5,
+                  label=f'P({k1} ≤ X ≤ {k2}) = {prob_total:.4f}')
+        
+        ax.set_xlabel('Número de eventos (k)', fontsize=12, fontweight='bold')
+        ax.set_ylabel('P(X = k)', fontsize=12, fontweight='bold')
+        ax.set_title(f'Probabilidades en Intervalos: λ = {self.lambd}',
+                    fontsize=14, fontweight='bold')
+        ax.legend(loc='best')
+        ax.grid(True, alpha=0.3, axis='y')
+        ax.set_xticks(k_values)
+        
+        return ax
     
     def tabla_probabilidades(self, k_max=None):
         """Genera tabla completa de probabilidades"""

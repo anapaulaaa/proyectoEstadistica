@@ -156,17 +156,167 @@ class DistribucionNormal:
         }
     
     def estadisticas(self):
-        """Retorna las estadísticas de la distribución"""
+        """Calcula las estadísticas de la distribución"""
         return {
             'media': self.mu,
             'mediana': self.mu,
             'moda': self.mu,
             'varianza': self.varianza,
             'desviacion_estandar': self.sigma,
-            'asimetria': 0,  # Simétrica
-            'curtosis': 0,   # Mesocúrtica
-            'propiedad': 'En la Normal: Media = Mediana = Moda'
+            'coeficiente_variacion': (self.sigma / self.mu) if self.mu != 0 else None,
+            'asimetria': 0,  # La normal es simétrica
+            'curtosis': 3,   # Curtosis de una normal
+            'curtosis_exceso': 0  # Exceso de curtosis
         }
+    
+    def graficar_densidad(self, ax=None, rango=None, mostrar_areas=None):
+        """
+        Genera la gráfica de la función de densidad de probabilidad
+        
+        Parameters:
+        - ax: eje de matplotlib (si None, crea una nueva figura)
+        - rango: tupla (min, max) para el rango del eje x
+        - mostrar_areas: diccionario con áreas a sombrear, ej: {'a': valor_a, 'b': valor_b}
+        """
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Definir rango
+        if rango is None:
+            x_min = self.mu - 4 * self.sigma
+            x_max = self.mu + 4 * self.sigma
+        else:
+            x_min, x_max = rango
+        
+        # Generar valores x
+        x = np.linspace(x_min, x_max, 1000)
+        y = self.distribucion.pdf(x)
+        
+        # Graficar la curva normal
+        ax.plot(x, y, 'b-', linewidth=2, label=f'N(μ={self.mu}, σ={self.sigma})')
+        
+        # Sombrear áreas si se especifica
+        if mostrar_areas:
+            if 'a' in mostrar_areas and 'b' in mostrar_areas:
+                a, b = mostrar_areas['a'], mostrar_areas['b']
+                x_area = x[(x >= a) & (x <= b)]
+                y_area = self.distribucion.pdf(x_area)
+                ax.fill_between(x_area, y_area, alpha=0.3, color='green', 
+                               label=f'P({a} ≤ X ≤ {b})')
+            elif 'a' in mostrar_areas:
+                a = mostrar_areas['a']
+                x_area = x[x <= a]
+                y_area = self.distribucion.pdf(x_area)
+                ax.fill_between(x_area, y_area, alpha=0.3, color='orange',
+                               label=f'P(X ≤ {a})')
+        
+        # Marcar la media
+        ax.axvline(self.mu, color='red', linestyle='--', linewidth=1.5, 
+                  label=f'μ = {self.mu}')
+        
+        # Marcar desviaciones estándar
+        for i in [-1, 1]:
+            ax.axvline(self.mu + i * self.sigma, color='gray', linestyle=':', 
+                      linewidth=1, alpha=0.7)
+        
+        ax.set_xlabel('Valor de X', fontsize=12, fontweight='bold')
+        ax.set_ylabel('Densidad de Probabilidad', fontsize=12, fontweight='bold')
+        ax.set_title(f'Distribución Normal: μ={self.mu}, σ={self.sigma}', 
+                    fontsize=14, fontweight='bold')
+        ax.legend(loc='best')
+        ax.grid(True, alpha=0.3)
+        
+        return ax
+    
+    def graficar_comparacion(self, otros_parametros, ax=None):
+        """
+        Compara múltiples distribuciones normales con diferentes parámetros
+        
+        Parameters:
+        - otros_parametros: lista de tuplas [(mu1, sigma1), (mu2, sigma2), ...]
+        - ax: eje de matplotlib
+        """
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(12, 7))
+        
+        # Calcular rango global
+        todas_mus = [self.mu] + [p[0] for p in otros_parametros]
+        todas_sigmas = [self.sigma] + [p[1] for p in otros_parametros]
+        x_min = min(todas_mus) - 4 * max(todas_sigmas)
+        x_max = max(todas_mus) + 4 * max(todas_sigmas)
+        
+        x = np.linspace(x_min, x_max, 1000)
+        
+        # Graficar distribución actual
+        y = self.distribucion.pdf(x)
+        ax.plot(x, y, linewidth=2.5, label=f'N(μ={self.mu}, σ={self.sigma})')
+        
+        # Graficar otras distribuciones
+        colores = plt.cm.Set1(np.linspace(0, 1, len(otros_parametros)))
+        for i, (mu, sigma) in enumerate(otros_parametros):
+            dist = stats.norm(mu, sigma)
+            y = dist.pdf(x)
+            ax.plot(x, y, linewidth=2, label=f'N(μ={mu}, σ={sigma})', 
+                   color=colores[i])
+        
+        ax.set_xlabel('Valor de X', fontsize=12, fontweight='bold')
+        ax.set_ylabel('Densidad de Probabilidad', fontsize=12, fontweight='bold')
+        ax.set_title('Comparación de Distribuciones Normales', 
+                    fontsize=14, fontweight='bold')
+        ax.legend(loc='best')
+        ax.grid(True, alpha=0.3)
+        
+        return ax
+    
+    def graficar_regla_empirica(self, ax=None):
+        """
+        Grafica la regla empírica (68-95-99.7) de la distribución normal
+        """
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(12, 7))
+        
+        x_min = self.mu - 4 * self.sigma
+        x_max = self.mu + 4 * self.sigma
+        x = np.linspace(x_min, x_max, 1000)
+        y = self.distribucion.pdf(x)
+        
+        # Curva principal
+        ax.plot(x, y, 'b-', linewidth=2.5)
+        
+        # Área 68% (μ ± 1σ)
+        x1 = x[(x >= self.mu - self.sigma) & (x <= self.mu + self.sigma)]
+        y1 = self.distribucion.pdf(x1)
+        ax.fill_between(x1, y1, alpha=0.5, color='green', label='68% (μ ± 1σ)')
+        
+        # Área 95% (μ ± 2σ)
+        x2 = x[(x >= self.mu - 2*self.sigma) & (x <= self.mu - self.sigma)]
+        y2 = self.distribucion.pdf(x2)
+        ax.fill_between(x2, y2, alpha=0.4, color='yellow')
+        x2 = x[(x >= self.mu + self.sigma) & (x <= self.mu + 2*self.sigma)]
+        y2 = self.distribucion.pdf(x2)
+        ax.fill_between(x2, y2, alpha=0.4, color='yellow', label='95% (μ ± 2σ)')
+        
+        # Área 99.7% (μ ± 3σ)
+        x3 = x[(x >= self.mu - 3*self.sigma) & (x <= self.mu - 2*self.sigma)]
+        y3 = self.distribucion.pdf(x3)
+        ax.fill_between(x3, y3, alpha=0.3, color='orange')
+        x3 = x[(x >= self.mu + 2*self.sigma) & (x <= self.mu + 3*self.sigma)]
+        y3 = self.distribucion.pdf(x3)
+        ax.fill_between(x3, y3, alpha=0.3, color='orange', label='99.7% (μ ± 3σ)')
+        
+        # Líneas verticales
+        ax.axvline(self.mu, color='red', linestyle='--', linewidth=2, label=f'μ = {self.mu}')
+        for i in range(1, 4):
+            ax.axvline(self.mu - i*self.sigma, color='gray', linestyle=':', linewidth=1)
+            ax.axvline(self.mu + i*self.sigma, color='gray', linestyle=':', linewidth=1)
+        
+        ax.set_xlabel('Valor de X', fontsize=12, fontweight='bold')
+        ax.set_ylabel('Densidad de Probabilidad', fontsize=12, fontweight='bold')
+        ax.set_title('Regla Empírica: 68-95-99.7', fontsize=14, fontweight='bold')
+        ax.legend(loc='best')
+        ax.grid(True, alpha=0.3)
+        
+        return ax
     
     def generar_muestra(self, tamaño_muestra):
         """Genera una muestra aleatoria"""
