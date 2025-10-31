@@ -348,15 +348,28 @@ class RegresionNoLineal:
         }
     
     def comparar_modelos(self):
-        """Compara los tres modelos y recomienda el mejor"""
+        """Compara los cuatro modelos y recomienda el mejor"""
         lineal = RegresionLinealSimple(self.x, self.y)
         exponencial = self.regresion_exponencial()
         logaritmica = self.regresion_logaritmica()
+        potencial = self.regresion_potencial()
         
         modelos = {
             'Lineal': {'r2': lineal.r2, 'ecuacion': lineal.ecuacion()['ecuacion']},
             'Exponencial': {'r2': exponencial.get('r2', 0), 'ecuacion': exponencial.get('ecuacion', 'N/A')},
-            'Logarítmica': {'r2': logaritmica.get('r2', 0), 'ecuacion': logaritmica.get('ecuacion', 'N/A')}
+            'Logarítmica': {'r2': logaritmica.get('r2', 0), 'ecuacion': logaritmica.get('ecuacion', 'N/A')},
+            'Potencial': {'r2': potencial.get('r2', 0), 'ecuacion': potencial.get('ecuacion', 'N/A')}
+        }
+        
+        # Encontrar el mejor modelo
+        mejor_modelo = max(modelos.items(), key=lambda x: x[1]['r2'])
+        
+        return {
+            'modelos': modelos,
+            'mejor_modelo': mejor_modelo[0],
+            'mejor_r2': mejor_modelo[1]['r2'],
+            'mejor_ecuacion': mejor_modelo[1]['ecuacion'],
+            'recomendacion': f"El modelo {mejor_modelo[0]} tiene el mejor ajuste con R²={mejor_modelo[1]['r2']:.4f}"
         }
         
         # Encontrar el mejor
@@ -371,84 +384,134 @@ class RegresionNoLineal:
         }
     
     def graficar_comparacion(self):
-        """Grafica todos los modelos para comparar"""
-        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+        """Grafica todos los modelos para comparar (Lineal, Exponencial, Logarítmica, Potencial)"""
+        fig, axes = plt.subplots(2, 3, figsize=(18, 10))
         
         # Calcular modelos
         lineal = RegresionLinealSimple(self.x, self.y)
         exponencial = self.regresion_exponencial()
         logaritmica = self.regresion_logaritmica()
+        potencial = self.regresion_potencial()
         
         # Ordenar x para graficar líneas suaves
         x_sorted = np.sort(self.x)
         
         # 1. Modelo Lineal
         ax1 = axes[0, 0]
-        ax1.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos')
+        ax1.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos originales')
         x_line = x_sorted.reshape(-1, 1)
         y_line = lineal.modelo.predict(x_line)
-        ax1.plot(x_sorted, y_line, 'r-', linewidth=2, label='Ajuste lineal')
-        ax1.set_xlabel('X')
-        ax1.set_ylabel('Y')
-        ax1.set_title(f'Modelo Lineal\nR² = {lineal.r2:.4f}', fontweight='bold')
-        ax1.legend()
+        ax1.plot(x_sorted, y_line, 'r-', linewidth=2.5, label='Ajuste lineal')
+        ax1.set_xlabel('X', fontsize=11, fontweight='bold')
+        ax1.set_ylabel('Y', fontsize=11, fontweight='bold')
+        ax1.set_title(f'📊 Modelo Lineal\ny = a + bx\nR² = {lineal.r2:.4f}', fontweight='bold', fontsize=12)
+        ax1.legend(loc='best')
         ax1.grid(True, alpha=0.3)
         
         # 2. Modelo Exponencial
         ax2 = axes[0, 1]
-        ax2.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos')
+        ax2.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos originales')
         if 'error' not in exponencial:
             idx_sorted = np.argsort(self.x)
             ax2.plot(self.x[idx_sorted], exponencial['y_predicho'][idx_sorted], 
-                    'g-', linewidth=2, label='Ajuste exponencial')
-            ax2.set_title(f'Modelo Exponencial\nR² = {exponencial["r2"]:.4f}', fontweight='bold')
+                    'g-', linewidth=2.5, label='Ajuste exponencial')
+            ax2.set_title(f'📈 Modelo Exponencial\ny = a × e^(bx)\nR² = {exponencial["r2"]:.4f}', 
+                         fontweight='bold', fontsize=12)
         else:
-            ax2.text(0.5, 0.5, exponencial['error'], ha='center', va='center',
-                    transform=ax2.transAxes, fontsize=10, color='red')
-            ax2.set_title('Modelo Exponencial\nNo disponible', fontweight='bold')
-        ax2.set_xlabel('X')
-        ax2.set_ylabel('Y')
-        ax2.legend()
+            ax2.text(0.5, 0.5, '⚠️ ' + exponencial['error'], ha='center', va='center',
+                    transform=ax2.transAxes, fontsize=9, color='red', wrap=True)
+            ax2.set_title('📈 Modelo Exponencial\nNo disponible', fontweight='bold', fontsize=12)
+        ax2.set_xlabel('X', fontsize=11, fontweight='bold')
+        ax2.set_ylabel('Y', fontsize=11, fontweight='bold')
+        ax2.legend(loc='best')
         ax2.grid(True, alpha=0.3)
         
         # 3. Modelo Logarítmico
-        ax3 = axes[1, 0]
-        ax3.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos')
+        ax3 = axes[0, 2]
+        ax3.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos originales')
         if 'error' not in logaritmica:
             idx_sorted = np.argsort(self.x)
             ax3.plot(self.x[idx_sorted], logaritmica['y_predicho'][idx_sorted], 
-                    'purple', linewidth=2, label='Ajuste logarítmico')
-            ax3.set_title(f'Modelo Logarítmico\nR² = {logaritmica["r2"]:.4f}', fontweight='bold')
+                    color='purple', linewidth=2.5, label='Ajuste logarítmico')
+            ax3.set_title(f'📉 Modelo Logarítmico\ny = a + b × ln(x)\nR² = {logaritmica["r2"]:.4f}', 
+                         fontweight='bold', fontsize=12)
         else:
-            ax3.text(0.5, 0.5, logaritmica['error'], ha='center', va='center',
-                    transform=ax3.transAxes, fontsize=10, color='red')
-            ax3.set_title('Modelo Logarítmico\nNo disponible', fontweight='bold')
-        ax3.set_xlabel('X')
-        ax3.set_ylabel('Y')
-        ax3.legend()
+            ax3.text(0.5, 0.5, '⚠️ ' + logaritmica['error'], ha='center', va='center',
+                    transform=ax3.transAxes, fontsize=9, color='red', wrap=True)
+            ax3.set_title('📉 Modelo Logarítmico\nNo disponible', fontweight='bold', fontsize=12)
+        ax3.set_xlabel('X', fontsize=11, fontweight='bold')
+        ax3.set_ylabel('Y', fontsize=11, fontweight='bold')
+        ax3.legend(loc='best')
         ax3.grid(True, alpha=0.3)
         
-        # 4. Comparación de R²
-        ax4 = axes[1, 1]
+        # 4. Modelo Potencial
+        ax4 = axes[1, 0]
+        ax4.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos originales')
+        if 'error' not in potencial:
+            idx_sorted = np.argsort(self.x)
+            ax4.plot(self.x[idx_sorted], potencial['y_predicho'][idx_sorted], 
+                    color='orange', linewidth=2.5, label='Ajuste potencial')
+            ax4.set_title(f'⚡ Modelo Potencial\ny = a × x^b\nR² = {potencial["r2"]:.4f}', 
+                         fontweight='bold', fontsize=12)
+        else:
+            ax4.text(0.5, 0.5, '⚠️ ' + potencial['error'], ha='center', va='center',
+                    transform=ax4.transAxes, fontsize=9, color='red', wrap=True)
+            ax4.set_title('⚡ Modelo Potencial\nNo disponible', fontweight='bold', fontsize=12)
+        ax4.set_xlabel('X', fontsize=11, fontweight='bold')
+        ax4.set_ylabel('Y', fontsize=11, fontweight='bold')
+        ax4.legend(loc='best')
+        ax4.grid(True, alpha=0.3)
+        
+        # 5. Comparación de R² (gráfico de barras)
+        ax5 = axes[1, 1]
         comparacion = self.comparar_modelos()
         modelos_nombres = list(comparacion['modelos'].keys())
         r2_valores = [comparacion['modelos'][m]['r2'] for m in modelos_nombres]
         
-        colores = ['red' if m == comparacion['mejor_modelo'] else 'lightblue' 
+        colores = ['#E53935' if m == comparacion['mejor_modelo'] else '#64B5F6' 
                   for m in modelos_nombres]
-        bars = ax4.bar(modelos_nombres, r2_valores, color=colores, alpha=0.7, edgecolor='black')
-        ax4.set_ylabel('R² (Coeficiente de Determinación)')
-        ax4.set_title('Comparación de Modelos', fontweight='bold')
-        ax4.set_ylim(0, 1)
-        ax4.grid(True, alpha=0.3, axis='y')
+        bars = ax5.bar(modelos_nombres, r2_valores, color=colores, alpha=0.8, 
+                      edgecolor='black', linewidth=2)
+        ax5.set_ylabel('R² (Coeficiente de Determinación)', fontsize=11, fontweight='bold')
+        ax5.set_title('🏆 Comparación de Modelos\n(Mejor modelo en rojo)', fontweight='bold', fontsize=12)
+        ax5.set_ylim(0, 1.1)
+        ax5.grid(True, alpha=0.3, axis='y')
+        ax5.axhline(y=0.7, color='green', linestyle='--', linewidth=1.5, alpha=0.5, label='R²=0.7 (buen ajuste)')
+        ax5.legend(loc='upper right')
         
         # Agregar valores sobre las barras
-        for bar, val in zip(bars, r2_valores):
+        for bar, val, nombre in zip(bars, r2_valores, modelos_nombres):
             height = bar.get_height()
-            ax4.text(bar.get_x() + bar.get_width()/2., height + 0.02,
-                    f'{val:.4f}', ha='center', va='bottom', fontweight='bold')
+            emoji = '👑' if nombre == comparacion['mejor_modelo'] else '📊'
+            ax5.text(bar.get_x() + bar.get_width()/2., height + 0.03,
+                    f'{emoji}\n{val:.4f}', ha='center', va='bottom', fontweight='bold', fontsize=10)
+        
+        # 6. Resumen de ecuaciones
+        ax6 = axes[1, 2]
+        ax6.axis('off')
+        
+        resumen_texto = "📋 RESUMEN DE MODELOS\n" + "="*40 + "\n\n"
+        
+        for nombre, datos in comparacion['modelos'].items():
+            emoji = '🏆' if nombre == comparacion['mejor_modelo'] else '📊'
+            resumen_texto += f"{emoji} {nombre}:\n"
+            resumen_texto += f"   Ecuación: {datos['ecuacion']}\n"
+            resumen_texto += f"   R² = {datos['r2']:.4f} ({datos['r2']*100:.2f}%)\n\n"
+        
+        resumen_texto += "="*40 + "\n"
+        resumen_texto += f"🏆 MEJOR: {comparacion['mejor_modelo']}\n"
+        resumen_texto += f"📊 R² = {comparacion['mejor_r2']:.4f}\n\n"
+        resumen_texto += f"💡 {comparacion['recomendacion']}"
+        
+        ax6.text(0.05, 0.95, resumen_texto, transform=ax6.transAxes,
+                fontsize=9, verticalalignment='top', family='monospace',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
         
         plt.tight_layout()
+        fig.suptitle('📊 ANÁLISIS COMPLETO DE REGRESIÓN - Comparación de Modelos', 
+                    fontsize=14, fontweight='bold', y=1.00)
+        plt.subplots_adjust(top=0.96)
+        
         return fig
 
 
