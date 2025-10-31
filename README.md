@@ -1,26 +1,80 @@
 # Proyecto Final de Estadística 
 
-Este repositorio contiene el proyecto final del curso de **Estadística**, en el cual se recopilan y aplican los principales temas estudiados durante el semestre, acompañados de ejemplos prácticos implementados en **Python**.
+Sistema integral de análisis estadístico con interfaz gráfica moderna
+# Características • Instalación • Uso • Estructura • Documentación • Autoras
 
-## Temas incluidos
-1. Medidas de tendencia central (media, mediana, moda).
-2. Medidas de dispersión (varianza, desviación estándar, rango).
-3. Probabilidad básica.
-4. Distribuciones de probabilidad (Binomial, Poisson, Normal).
-5. Diagramas de probabilidad y **árboles de decisión**.
+# Descripción
+StatPro es un analizador estadístico completo desarrollado en Python con interfaz gráfica Tkinter. Combina estadística descriptiva e inferencial en una herramienta educativa intuitiva y profesional, diseñada para facilitar el análisis de datos de manera visual e interactiva.
 
-## Tecnologías y librerías usadas
-- **Python 3.x**
-- `matplotlib` → para visualización de gráficos.
-- `pandas` → manejo de datos tabulares.
-- `numpy` → operaciones numéricas.
-- (Opcional) `scipy` → funciones estadísticas.
+# Objetivo del Proyecto
+Proporcionar una herramienta integral para el análisis estadístico de datos, facilitando:
+
+✅ Cálculos estadísticos descriptivos e inferenciales
+✅ Visualización de datos mediante gráficos interactivos
+✅ Pruebas de hipótesis y distribuciones de probabilidad
+✅ Análisis de correlación y regresión
+✅ Exportación de resultados en múltiples formatos
+
+# ✨ Características📊 
+Estadística Descriptiva e inferencial. Temas vistos en el curso.
+Guarda resultados en archivo .txt
+Captura gráficos desde la barra de herramientas
+📁 Archivos CSV de Ejemplo
+El proyecto incluye 8 datasets de prueba listos para usar:
+
+│
+├── 📄 main.py                           # Punto de entrada principal
+├── ⚙️ config_interfaz.py                # Configuración de colores y estilos
+├── 📋 requirements.txt                  # Dependencias del proyecto
+├── 📖 README.md                         # Documentación principal
+│
+├── 📊 estadistica_descriptiva/          # Módulo de análisis descriptivo
+│   ├── analisis_estadistico.py          # Tendencia central y frecuencias
+│   ├── medidas_dispersión.py            # Varianza, desviación estándar, CV
+│   ├── medidas_posicion.py              # Cuartiles, percentiles, boxplots
+│   ├── medidas_forma.py                 # Asimetría y curtosis
+│   └── graficas.py                      # Visualizaciones descriptivas
+│
+├── 🎲 estadistica_inferencial/          # Módulo de análisis inferencial
+│   ├── probabilidades.py                # Cálculos básicos de probabilidad
+│   ├── bayes.py                         # Teorema de Bayes
+│   ├── distribuciones.py                # Bernoulli y Binomial
+│   ├── distribucion_normal.py           # Distribución Normal
+│   ├── distribucion_poisson.py          # Distribución Poisson
+│   ├── regresion_correlacion.py         # Análisis bivariado
+│   ├── chi_cuadrado.py                  # Prueba χ²
+│   └── diagramas_arbol.py               # Árboles de probabilidad
+│
+├── 🖥️ interfaz/                         # Interfaz gráfica de usuario
+│   ├── pantalla_login.py                # Sistema de autenticación
+│   ├── menu_principal.py                # Navegación y menús
+│   └── interfaz_grafica.py              # Componentes visuales
+│
+├── 🛠️ utils/                            # Utilidades y herramientas
+│   ├── cargar_datos.py                  # Importación de CSV
+│   ├── exportar_resultados.py           # Exportación de datos
+│   └── tooltip.py                       # Tooltips informativos
+│
+└── 📂 datos/                            # Datasets y documentación
+    ├── 📊 (8 archivos CSV de ejemplo)
+    ├── 📖 GUIA_ARCHIVOS_CSV.md          # Descripción detallada
+    └── 📘 GUIA_RAPIDA_USO.md            # Manual de usuario📖 Documentación AdicionalGuías Incluidas
+📘 GUIA_ARCHIVOS_CSV.md
 
 
-### Notas
-El repositorio puede ampliarse con más ejemplos y datasets.
+# 📚 Créditos y RecursosLibrerías Utilizadas
+NumPy - Cálculos numéricos de alto rendimiento
+Pandas - Análisis y manipulación de datos
+Matplotlib - Visualizaciones estáticas, animadas e interactivas
+SciPy - Algoritmos científicos y estadísticos
+Scikit-learn - Machine learning y métricas estadísticas
+Seaborn - Gráficos estadísticos de alto nivel
 
-Este proyecto se elaboró como parte del curso de Estadística, Ingeniería en Sistemas UMG Huehuetenango.
-
-Autor:
-Ana Paula Vásquez - 4to Ciclo
+👥 Autora:
+👩‍💻 Ana Paula Vásquez 
+🏛️ Universidad Mariano Gálvez de Guatemala (UMG)
+📍 Campus: Huehuetenango
+📚 Carrera: Ingeniería en Sistemas
+🎯 Nivel: 4to Ciclo
+📅 Año Académico: 2025
+📖 Curso: Estadística I
