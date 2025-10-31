@@ -1470,7 +1470,10 @@ class MenuPrincipal:
                 ]
                 
                 for medida, valor, desc in medidas_info:
-                    resultado += f"{medida:<30} {str(valor):<15.2f} {desc}\n" if isinstance(valor, (int, float)) else f"{medida:<30} {str(valor):<15} {desc}\n"
+                    if isinstance(valor, (int, float)):
+                        resultado += f"{medida:<30} {valor:<15.2f} {desc}\n"
+                    else:
+                        resultado += f"{medida:<30} {str(valor):<15} {desc}\n"
                 
                 resultado += "\n" + "╔" + "═" * 78 + "╗\n"
                 resultado += "║" + " " * 28 + "💡 INTERPRETACIÓN" + " " * 32 + "║\n"
@@ -2962,45 +2965,62 @@ class MenuPrincipal:
                     
                     ventana.mostrar_texto(texto)
                     
-                    # ============= MOSTRAR GRÁFICOS =============
+                    # ============= MOSTRAR GRÁFICOS DE MANERA ORDENADA =============
                     try:
+                        # Cerrar ventana de selección
+                        ventana_seleccion.destroy()
+                        
                         # 1. Gráfico de Correlación (dispersión simple)
                         fig_corr = corr.graficar_correlacion()
-                        ventana.mostrar_grafico(fig_corr)
                         
-                        # 2. Gráfico de Regresión Lineal
+                        # Mostrar en ventana nueva
+                        ventana_graf_corr = tk.Toplevel(ventana)
+                        ventana_graf_corr.title("📊 Gráfico de Correlación")
+                        ventana_graf_corr.geometry("900x700")
+                        
+                        canvas_corr = FigureCanvasTkAgg(fig_corr, master=ventana_graf_corr)
+                        canvas_corr.draw()
+                        canvas_corr.get_tk_widget().pack(fill='both', expand=True)
+                        
+                        toolbar_corr = NavigationToolbar2Tk(canvas_corr, ventana_graf_corr)
+                        toolbar_corr.update()
+                        
+                        # 2. Gráfico de Regresión Lineal Simple
                         fig_reg = reg_lineal.graficar()
-                        plt.show()
                         
-                        # 3. Gráfico COMPLETO con TODOS los modelos 
-                        # (Lineal, Exponencial, Logarítmica, Potencial)
-                        # Esta gráfica muestra 6 subplots:
-                        # - 4 gráficos de dispersión con líneas de ajuste
-                        # - 1 gráfico de barras comparando R²
-                        # - 1 panel de resumen con ecuaciones
+                        ventana_graf_reg = tk.Toplevel(ventana)
+                        ventana_graf_reg.title("📈 Regresión Lineal Simple")
+                        ventana_graf_reg.geometry("900x700")
+                        
+                        canvas_reg = FigureCanvasTkAgg(fig_reg, master=ventana_graf_reg)
+                        canvas_reg.draw()
+                        canvas_reg.get_tk_widget().pack(fill='both', expand=True)
+                        
+                        toolbar_reg = NavigationToolbar2Tk(canvas_reg, ventana_graf_reg)
+                        toolbar_reg.update()
+                        
+                        # 3. Comparación COMPLETA de 4 modelos (en la ventana principal)
+                        fig_comp = reg_no_lineal.graficar_comparacion()
+                        ventana.mostrar_grafico(fig_comp)
+                        
+                        # 3. Comparación COMPLETA de 4 modelos (en la ventana principal)
                         fig_comp = reg_no_lineal.graficar_comparacion()
                         ventana.mostrar_grafico(fig_comp)
                         
                         # Mensaje informativo
                         messagebox.showinfo(
-                            "📊 Gráficos Generados Exitosamente",
-                            "✅ Se han generado 3 ventanas con gráficos:\n\n"
+                            "📊 Análisis Completo",
+                            "✅ Se han generado 3 gráficos:\n\n"
                             "1️⃣ CORRELACIÓN\n"
-                            "   → Diagrama de dispersión simple\n\n"
+                            "   • Diagrama de dispersión\n"
+                            "   • Coeficiente de Pearson (r)\n\n"
                             "2️⃣ REGRESIÓN LINEAL\n"
-                            "   → Dispersión + línea de ajuste roja\n"
-                            "   → Ecuación y = a + bx\n\n"
-                            "3️⃣ COMPARACIÓN COMPLETA (6 gráficos):\n"
-                            "   📊 Modelo Lineal (línea roja)\n"
-                            "   📈 Modelo Exponencial (línea verde)\n"
-                            "   📉 Modelo Logarítmico (línea morada)\n"
-                            "   ⚡ Modelo Potencial (línea naranja)\n"
-                            "   🏆 Comparación R² (barras)\n"
-                            "   📋 Resumen de ecuaciones\n\n"
-                            "💡 Usa las herramientas 🔍🏠💾 para:\n"
-                            "   • Hacer zoom en áreas específicas\n"
-                            "   • Mover y explorar el gráfico\n"
-                            "   • Guardar imágenes en alta calidad"
+                            "   • Dispersión con línea de ajuste\n"
+                            "   • Ecuación: y = a + bx\n\n"
+                            "3️⃣ COMPARACIÓN DE MODELOS\n"
+                            "   • 4 modelos de regresión\n"
+                            "   • Comparación de R²\n"
+                            "   • Resumen de ecuaciones"
                         )
                         
                     except Exception as e:

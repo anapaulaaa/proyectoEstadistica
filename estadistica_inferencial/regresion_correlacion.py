@@ -24,6 +24,24 @@ class CorrelacionLineal:
         
         if len(self.x) != len(self.y):
             raise ValueError("x e y deben tener la misma longitud")
+        
+        # Calcular correlación de Pearson automáticamente
+        self.r, self.p_valor = stats.pearsonr(self.x, self.y)
+        
+        # Interpretación
+        if abs(self.r) < 0.3:
+            self.interpretacion = "Correlación débil"
+        elif abs(self.r) < 0.7:
+            self.interpretacion = "Correlación moderada"
+        else:
+            self.interpretacion = "Correlación fuerte"
+        
+        if self.r > 0:
+            self.direccion = "positiva (directa)"
+        elif self.r < 0:
+            self.direccion = "negativa (inversa)"
+        else:
+            self.direccion = "nula"
     
     def coeficiente_correlacion_pearson(self):
         """
@@ -68,31 +86,67 @@ class CorrelacionLineal:
                           index=['X', 'Y'])
     
     def graficar_correlacion(self):
-        """Visualiza la correlación"""
-        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+        """Genera un diagrama de dispersión para visualizar la correlación"""
+        fig, ax = plt.subplots(figsize=(11, 7))
         
-        # Diagrama de dispersión
-        ax1 = axes[0]
-        ax1.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue')
-        ax1.set_xlabel('X', fontsize=12)
-        ax1.set_ylabel('Y', fontsize=12)
-        ax1.set_title('Diagrama de Dispersión', fontsize=13, fontweight='bold')
-        ax1.grid(True, alpha=0.3)
+        # Diagrama de dispersión con mejor estilo
+        ax.scatter(self.x, self.y, alpha=0.7, s=90, color='#4A90E2', 
+                  edgecolors='black', linewidth=1, label='Datos observados', zorder=5)
         
-        # Agregar coeficiente de correlación
-        corr = self.coeficiente_correlacion_pearson()
-        ax1.text(0.05, 0.95, f"r = {corr['r']:.4f}\n{corr['interpretacion']}", 
-                transform=ax1.transAxes, fontsize=11,
-                verticalalignment='top', bbox=dict(boxstyle='round', 
-                facecolor='wheat', alpha=0.5))
+        # Añadir línea de tendencia más visible
+        z = np.polyfit(self.x, self.y, 1)
+        p = np.poly1d(z)
+        x_sorted = np.sort(self.x)
+        ax.plot(x_sorted, p(x_sorted), color='#E74C3C', linewidth=3, 
+               alpha=0.85, label='Tendencia lineal', zorder=10)
         
-        # Matriz de correlación (heatmap)
-        ax2 = axes[1]
-        matriz = self.matriz_correlacion()
-        sns.heatmap(matriz, annot=True, cmap='coolwarm', center=0,
-                   vmin=-1, vmax=1, ax=ax2, square=True, 
-                   cbar_kws={'label': 'Correlación'})
-        ax2.set_title('Matriz de Correlación', fontsize=13, fontweight='bold')
+        # Configuración del gráfico
+        ax.set_xlabel('Variable X', fontsize=13, fontweight='bold', labelpad=10)
+        ax.set_ylabel('Variable Y', fontsize=13, fontweight='bold', labelpad=10)
+        ax.set_title('>> Diagrama de Dispersion - Analisis de Correlacion <<', 
+                    fontsize=15, fontweight='bold', pad=20)
+        ax.legend(loc='best', fontsize=11, framealpha=0.95, edgecolor='black', fancybox=True)
+        ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.8)
+        
+        # Añadir cuadro de información mejor formateado
+        # Determinar fortaleza para el texto
+        r_abs = abs(self.r)
+        if r_abs >= 0.8:
+            fortaleza = "MUY FUERTE"
+            color_fortaleza = "#27AE60"
+        elif r_abs >= 0.6:
+            fortaleza = "FUERTE"
+            color_fortaleza = "#2ECC71"
+        elif r_abs >= 0.4:
+            fortaleza = "MODERADA"
+            color_fortaleza = "#F39C12"
+        elif r_abs >= 0.2:
+            fortaleza = "DÉBIL"
+            color_fortaleza = "#E67E22"
+        else:
+            fortaleza = "MUY DÉBIL"
+            color_fortaleza = "#C0392B"
+        
+        direccion = "positiva" if self.r > 0 else "negativa"
+        
+        textstr = f'╔══════════════════════════╗\n'
+        textstr += f'║   METRICAS DE CORRELACION   ║\n'
+        textstr += f'╚══════════════════════════╝\n\n'
+        textstr += f'>> Coef. correlacion (r):\n'
+        textstr += f'   {self.r:.4f}\n\n'
+        textstr += f'>> R² (determinacion):\n'
+        textstr += f'   {self.r**2:.4f} ({self.r**2*100:.1f}%)\n\n'
+        textstr += f'>> P-valor:\n'
+        textstr += f'   {self.p_valor:.6f}\n\n'
+        textstr += f'>> Interpretacion:\n'
+        textstr += f'   Correlacion {fortaleza}\n'
+        textstr += f'   {direccion}'
+        
+        props = dict(boxstyle='round,pad=0.8', facecolor='#FFF8DC', alpha=0.95, 
+                    edgecolor='black', linewidth=2.5)
+        ax.text(0.03, 0.97, textstr, transform=ax.transAxes, fontsize=10,
+               verticalalignment='top', bbox=props, family='monospace',
+               linespacing=1.3)
         
         plt.tight_layout()
         return fig
@@ -175,49 +229,59 @@ class RegresionLinealSimple:
         }
     
     def graficar(self):
-        """Genera gráficos del análisis de regresión"""
-        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+        """Genera gráfico limpio de regresión lineal con línea de ajuste"""
+        fig, ax = plt.subplots(1, 1, figsize=(11, 7))
         
-        # 1. Línea de regresión
-        ax1 = axes[0, 0]
-        ax1.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos reales')
-        ax1.plot(self.x, self.y_pred, 'r-', linewidth=2, label='Línea de regresión')
-        ax1.set_xlabel('X', fontsize=11)
-        ax1.set_ylabel('Y', fontsize=11)
-        ax1.set_title(f'Regresión Lineal\n{self.ecuacion()["ecuacion"]}', 
-                     fontsize=12, fontweight='bold')
-        ax1.legend()
-        ax1.grid(True, alpha=0.3)
+        # Ordenar datos para línea suave
+        indices_ordenados = np.argsort(self.x.flatten())
+        x_ordenado = self.x[indices_ordenados]
+        y_pred_ordenado = self.y_pred[indices_ordenados]
         
-        # Agregar R²
-        ax1.text(0.05, 0.95, f"R² = {self.r2:.4f}\nr = {self.r:.4f}", 
-                transform=ax1.transAxes, fontsize=10,
-                verticalalignment='top', bbox=dict(boxstyle='round', 
-                facecolor='lightgreen', alpha=0.7))
+        # Datos originales con mejor estilo
+        ax.scatter(self.x, self.y, alpha=0.7, s=90, color='#4A90E2', 
+                  label='Datos observados', edgecolors='black', linewidth=1, zorder=5)
         
-        # 2. Residuos vs Valores ajustados
-        ax2 = axes[0, 1]
-        ax2.scatter(self.y_pred, self.residuos, alpha=0.6, s=50, color='purple')
-        ax2.axhline(y=0, color='red', linestyle='--', linewidth=2)
-        ax2.set_xlabel('Valores Ajustados (ŷ)', fontsize=11)
-        ax2.set_ylabel('Residuos (y - ŷ)', fontsize=11)
-        ax2.set_title('Gráfico de Residuos', fontsize=12, fontweight='bold')
-        ax2.grid(True, alpha=0.3)
+        # Línea de regresión más visible
+        ax.plot(x_ordenado, y_pred_ordenado, color='#E74C3C', linewidth=3.5, 
+               label='Línea de regresión', zorder=10, alpha=0.9)
         
-        # 3. Q-Q plot de residuos
-        ax3 = axes[1, 0]
-        stats.probplot(self.residuos, dist="norm", plot=ax3)
-        ax3.set_title('Q-Q Plot de Residuos\n(Normalidad)', fontsize=12, fontweight='bold')
-        ax3.grid(True, alpha=0.3)
+        # Etiquetas y título
+        ax.set_xlabel('Variable X', fontsize=13, fontweight='bold', labelpad=10)
+        ax.set_ylabel('Variable Y', fontsize=13, fontweight='bold', labelpad=10)
+        ax.set_title(f'>> Regresion Lineal Simple <<\n{self.ecuacion()["ecuacion"]}', 
+                     fontsize=15, fontweight='bold', pad=20)
+        ax.legend(loc='best', fontsize=11, framealpha=0.95, edgecolor='black', fancybox=True)
+        ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.8)
         
-        # 4. Histograma de residuos
-        ax4 = axes[1, 1]
-        ax4.hist(self.residuos, bins=15, alpha=0.7, color='orange', edgecolor='black')
-        ax4.axvline(x=0, color='red', linestyle='--', linewidth=2)
-        ax4.set_xlabel('Residuos', fontsize=11)
-        ax4.set_ylabel('Frecuencia', fontsize=11)
-        ax4.set_title('Distribución de Residuos', fontsize=12, fontweight='bold')
-        ax4.grid(True, alpha=0.3)
+        # Información del modelo mejor formateada
+        calidad_ajuste = ""
+        if self.r2 >= 0.8:
+            calidad_ajuste = "EXCELENTE"
+        elif self.r2 >= 0.6:
+            calidad_ajuste = "BUENO"
+        elif self.r2 >= 0.4:
+            calidad_ajuste = "MODERADO"
+        else:
+            calidad_ajuste = "POBRE"
+        
+        texto_info = f'╔═══════════════════════╗\n'
+        texto_info += f'║   METRICAS DEL MODELO   ║\n'
+        texto_info += f'╚═══════════════════════╝\n\n'
+        texto_info += f'>> R² (determinacion):\n'
+        texto_info += f'   {self.r2:.4f} ({self.r2*100:.1f}%)\n'
+        texto_info += f'   Ajuste: {calidad_ajuste}\n\n'
+        texto_info += f'>> r (correlacion):\n'
+        texto_info += f'   {self.r:.4f}\n\n'
+        texto_info += f'>> RMSE (error):\n'
+        texto_info += f'   {self.rmse:.4f}\n\n'
+        texto_info += f'>> Pendiente: {self.b:.4f}\n'
+        texto_info += f'>> Intercepto: {self.a:.4f}'
+        
+        props = dict(boxstyle='round,pad=0.8', facecolor='#FFF8DC', alpha=0.95, 
+                    edgecolor='black', linewidth=2.5)
+        ax.text(0.03, 0.97, texto_info, transform=ax.transAxes, fontsize=10,
+                verticalalignment='top', bbox=props, family='monospace',
+                linespacing=1.3)
         
         plt.tight_layout()
         return fig
@@ -385,7 +449,8 @@ class RegresionNoLineal:
     
     def graficar_comparacion(self):
         """Grafica todos los modelos para comparar (Lineal, Exponencial, Logarítmica, Potencial)"""
-        fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+        fig = plt.figure(figsize=(18, 10))
+        gs = fig.add_gridspec(2, 3, hspace=0.35, wspace=0.3)
         
         # Calcular modelos
         lineal = RegresionLinealSimple(self.x, self.y)
@@ -397,120 +462,151 @@ class RegresionNoLineal:
         x_sorted = np.sort(self.x)
         
         # 1. Modelo Lineal
-        ax1 = axes[0, 0]
-        ax1.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos originales')
+        ax1 = fig.add_subplot(gs[0, 0])
+        ax1.scatter(self.x, self.y, alpha=0.6, s=60, color='steelblue', 
+                   label='Datos', edgecolors='black', linewidth=0.5)
         x_line = x_sorted.reshape(-1, 1)
         y_line = lineal.modelo.predict(x_line)
-        ax1.plot(x_sorted, y_line, 'r-', linewidth=2.5, label='Ajuste lineal')
-        ax1.set_xlabel('X', fontsize=11, fontweight='bold')
-        ax1.set_ylabel('Y', fontsize=11, fontweight='bold')
-        ax1.set_title(f'📊 Modelo Lineal\ny = a + bx\nR² = {lineal.r2:.4f}', fontweight='bold', fontsize=12)
-        ax1.legend(loc='best')
-        ax1.grid(True, alpha=0.3)
+        ax1.plot(x_sorted, y_line, 'r-', linewidth=2.5, label='Ajuste')
+        ax1.set_xlabel('X', fontsize=10, fontweight='bold')
+        ax1.set_ylabel('Y', fontsize=10, fontweight='bold')
+        ax1.set_title(f'Modelo Lineal\nR² = {lineal.r2:.4f}', 
+                     fontweight='bold', fontsize=11, pad=10)
+        ax1.legend(loc='best', fontsize=9)
+        ax1.grid(True, alpha=0.3, linestyle='--')
         
         # 2. Modelo Exponencial
-        ax2 = axes[0, 1]
-        ax2.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos originales')
+        ax2 = fig.add_subplot(gs[0, 1])
+        ax2.scatter(self.x, self.y, alpha=0.6, s=60, color='steelblue', 
+                   label='Datos', edgecolors='black', linewidth=0.5)
         if 'error' not in exponencial:
             idx_sorted = np.argsort(self.x)
             ax2.plot(self.x[idx_sorted], exponencial['y_predicho'][idx_sorted], 
-                    'g-', linewidth=2.5, label='Ajuste exponencial')
-            ax2.set_title(f'📈 Modelo Exponencial\ny = a × e^(bx)\nR² = {exponencial["r2"]:.4f}', 
-                         fontweight='bold', fontsize=12)
+                    'g-', linewidth=2.5, label='Ajuste')
+            ax2.set_title(f'Modelo Exponencial\nR² = {exponencial["r2"]:.4f}', 
+                         fontweight='bold', fontsize=11, pad=10)
         else:
-            ax2.text(0.5, 0.5, '⚠️ ' + exponencial['error'], ha='center', va='center',
-                    transform=ax2.transAxes, fontsize=9, color='red', wrap=True)
-            ax2.set_title('📈 Modelo Exponencial\nNo disponible', fontweight='bold', fontsize=12)
-        ax2.set_xlabel('X', fontsize=11, fontweight='bold')
-        ax2.set_ylabel('Y', fontsize=11, fontweight='bold')
-        ax2.legend(loc='best')
-        ax2.grid(True, alpha=0.3)
+            ax2.text(0.5, 0.5, '⚠️ Error:\n' + exponencial['error'][:40] + '...', 
+                    ha='center', va='center', transform=ax2.transAxes, 
+                    fontsize=8, color='red', wrap=True)
+            ax2.set_title('Modelo Exponencial\nNo disponible', 
+                         fontweight='bold', fontsize=11, pad=10)
+        ax2.set_xlabel('X', fontsize=10, fontweight='bold')
+        ax2.set_ylabel('Y', fontsize=10, fontweight='bold')
+        ax2.legend(loc='best', fontsize=9)
+        ax2.grid(True, alpha=0.3, linestyle='--')
         
         # 3. Modelo Logarítmico
-        ax3 = axes[0, 2]
-        ax3.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos originales')
+        ax3 = fig.add_subplot(gs[0, 2])
+        ax3.scatter(self.x, self.y, alpha=0.6, s=60, color='steelblue', 
+                   label='Datos', edgecolors='black', linewidth=0.5)
         if 'error' not in logaritmica:
             idx_sorted = np.argsort(self.x)
             ax3.plot(self.x[idx_sorted], logaritmica['y_predicho'][idx_sorted], 
-                    color='purple', linewidth=2.5, label='Ajuste logarítmico')
-            ax3.set_title(f'📉 Modelo Logarítmico\ny = a + b × ln(x)\nR² = {logaritmica["r2"]:.4f}', 
-                         fontweight='bold', fontsize=12)
+                    color='purple', linewidth=2.5, label='Ajuste')
+            ax3.set_title(f'Modelo Logarítmico\nR² = {logaritmica["r2"]:.4f}', 
+                         fontweight='bold', fontsize=11, pad=10)
         else:
-            ax3.text(0.5, 0.5, '⚠️ ' + logaritmica['error'], ha='center', va='center',
-                    transform=ax3.transAxes, fontsize=9, color='red', wrap=True)
-            ax3.set_title('📉 Modelo Logarítmico\nNo disponible', fontweight='bold', fontsize=12)
-        ax3.set_xlabel('X', fontsize=11, fontweight='bold')
-        ax3.set_ylabel('Y', fontsize=11, fontweight='bold')
-        ax3.legend(loc='best')
-        ax3.grid(True, alpha=0.3)
+            ax3.text(0.5, 0.5, '⚠️ Error:\n' + logaritmica['error'][:40] + '...', 
+                    ha='center', va='center', transform=ax3.transAxes, 
+                    fontsize=8, color='red', wrap=True)
+            ax3.set_title('Modelo Logarítmico\nNo disponible', 
+                         fontweight='bold', fontsize=11, pad=10)
+        ax3.set_xlabel('X', fontsize=10, fontweight='bold')
+        ax3.set_ylabel('Y', fontsize=10, fontweight='bold')
+        ax3.legend(loc='best', fontsize=9)
+        ax3.grid(True, alpha=0.3, linestyle='--')
         
         # 4. Modelo Potencial
-        ax4 = axes[1, 0]
-        ax4.scatter(self.x, self.y, alpha=0.6, s=50, color='steelblue', label='Datos originales')
+        ax4 = fig.add_subplot(gs[1, 0])
+        ax4.scatter(self.x, self.y, alpha=0.6, s=60, color='steelblue', 
+                   label='Datos', edgecolors='black', linewidth=0.5)
         if 'error' not in potencial:
             idx_sorted = np.argsort(self.x)
             ax4.plot(self.x[idx_sorted], potencial['y_predicho'][idx_sorted], 
-                    color='orange', linewidth=2.5, label='Ajuste potencial')
-            ax4.set_title(f'⚡ Modelo Potencial\ny = a × x^b\nR² = {potencial["r2"]:.4f}', 
-                         fontweight='bold', fontsize=12)
+                    color='orange', linewidth=2.5, label='Ajuste')
+            ax4.set_title(f'Modelo Potencial\nR² = {potencial["r2"]:.4f}', 
+                         fontweight='bold', fontsize=11, pad=10)
         else:
-            ax4.text(0.5, 0.5, '⚠️ ' + potencial['error'], ha='center', va='center',
-                    transform=ax4.transAxes, fontsize=9, color='red', wrap=True)
-            ax4.set_title('⚡ Modelo Potencial\nNo disponible', fontweight='bold', fontsize=12)
-        ax4.set_xlabel('X', fontsize=11, fontweight='bold')
-        ax4.set_ylabel('Y', fontsize=11, fontweight='bold')
-        ax4.legend(loc='best')
-        ax4.grid(True, alpha=0.3)
+            ax4.text(0.5, 0.5, '⚠️ Error:\n' + potencial['error'][:40] + '...', 
+                    ha='center', va='center', transform=ax4.transAxes, 
+                    fontsize=8, color='red', wrap=True)
+            ax4.set_title('Modelo Potencial\nNo disponible', 
+                         fontweight='bold', fontsize=11, pad=10)
+        ax4.set_xlabel('X', fontsize=10, fontweight='bold')
+        ax4.set_ylabel('Y', fontsize=10, fontweight='bold')
+        ax4.legend(loc='best', fontsize=9)
+        ax4.grid(True, alpha=0.3, linestyle='--')
         
         # 5. Comparación de R² (gráfico de barras)
-        ax5 = axes[1, 1]
+        ax5 = fig.add_subplot(gs[1, 1])
         comparacion = self.comparar_modelos()
         modelos_nombres = list(comparacion['modelos'].keys())
         r2_valores = [comparacion['modelos'][m]['r2'] for m in modelos_nombres]
         
         colores = ['#E53935' if m == comparacion['mejor_modelo'] else '#64B5F6' 
                   for m in modelos_nombres]
-        bars = ax5.bar(modelos_nombres, r2_valores, color=colores, alpha=0.8, 
-                      edgecolor='black', linewidth=2)
-        ax5.set_ylabel('R² (Coeficiente de Determinación)', fontsize=11, fontweight='bold')
-        ax5.set_title('🏆 Comparación de Modelos\n(Mejor modelo en rojo)', fontweight='bold', fontsize=12)
+        bars = ax5.bar(modelos_nombres, r2_valores, color=colores, alpha=0.85, 
+                      edgecolor='black', linewidth=1.5)
+        ax5.set_ylabel('R² (Coef. Determinación)', fontsize=10, fontweight='bold')
+        ax5.set_title('Comparación de R²\n(Mejor en rojo)', 
+                     fontweight='bold', fontsize=11, pad=10)
         ax5.set_ylim(0, 1.1)
-        ax5.grid(True, alpha=0.3, axis='y')
-        ax5.axhline(y=0.7, color='green', linestyle='--', linewidth=1.5, alpha=0.5, label='R²=0.7 (buen ajuste)')
-        ax5.legend(loc='upper right')
+        ax5.grid(True, alpha=0.3, axis='y', linestyle='--')
+        ax5.tick_params(axis='x', rotation=0, labelsize=9)
         
         # Agregar valores sobre las barras
         for bar, val, nombre in zip(bars, r2_valores, modelos_nombres):
             height = bar.get_height()
-            emoji = '👑' if nombre == comparacion['mejor_modelo'] else '📊'
-            ax5.text(bar.get_x() + bar.get_width()/2., height + 0.03,
-                    f'{emoji}\n{val:.4f}', ha='center', va='bottom', fontweight='bold', fontsize=10)
+            simbolo = '***' if nombre == comparacion['mejor_modelo'] else ''
+            ax5.text(bar.get_x() + bar.get_width()/2., height + 0.02,
+                    f'{simbolo}\n{val:.4f}', ha='center', va='bottom', 
+                    fontweight='bold', fontsize=9)
         
-        # 6. Resumen de ecuaciones
-        ax6 = axes[1, 2]
+        # 6. Resumen de ecuaciones (más compacto y legible)
+        ax6 = fig.add_subplot(gs[1, 2])
         ax6.axis('off')
         
-        resumen_texto = "📋 RESUMEN DE MODELOS\n" + "="*40 + "\n\n"
+        # Título del resumen
+        resumen_texto = "╔════════════════════════════════╗\n"
+        resumen_texto += "║   � RESUMEN DE MODELOS   ║\n"
+        resumen_texto += "╚════════════════════════════════╝\n\n"
         
+        # Iterar sobre los modelos
         for nombre, datos in comparacion['modelos'].items():
-            emoji = '🏆' if nombre == comparacion['mejor_modelo'] else '📊'
-            resumen_texto += f"{emoji} {nombre}:\n"
-            resumen_texto += f"   Ecuación: {datos['ecuacion']}\n"
-            resumen_texto += f"   R² = {datos['r2']:.4f} ({datos['r2']*100:.2f}%)\n\n"
+            emoji = '🏆 ' if nombre == comparacion['mejor_modelo'] else '📊 '
+            resumen_texto += f"{emoji}{nombre}:\n"
+            
+            # Acortar ecuación si es muy larga
+            ecuacion = datos['ecuacion']
+            if len(ecuacion) > 35:
+                ecuacion = ecuacion[:32] + "..."
+            resumen_texto += f"  {ecuacion}\n"
+            resumen_texto += f"  R² = {datos['r2']:.4f}\n\n"
         
-        resumen_texto += "="*40 + "\n"
-        resumen_texto += f"🏆 MEJOR: {comparacion['mejor_modelo']}\n"
-        resumen_texto += f"📊 R² = {comparacion['mejor_r2']:.4f}\n\n"
-        resumen_texto += f"💡 {comparacion['recomendacion']}"
+        # Línea separadora
+        resumen_texto += "─" * 35 + "\n\n"
+        
+        # Mejor modelo destacado
+        resumen_texto += f"🏆 MEJOR MODELO:\n"
+        resumen_texto += f"  {comparacion['mejor_modelo']}\n"
+        resumen_texto += f"  R² = {comparacion['mejor_r2']:.4f}\n\n"
+        
+        # Recomendación
+        resumen_texto += f"💡 RECOMENDACIÓN:\n"
+        mejor_r2_pct = comparacion['mejor_r2'] * 100
+        resumen_texto += f"  El modelo {comparacion['mejor_modelo']}\n"
+        resumen_texto += f"  explica el {mejor_r2_pct:.1f}%\n"
+        resumen_texto += f"  de la variabilidad."
         
         ax6.text(0.05, 0.95, resumen_texto, transform=ax6.transAxes,
                 fontsize=9, verticalalignment='top', family='monospace',
-                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+                bbox=dict(boxstyle='round,pad=1', facecolor='wheat', 
+                         edgecolor='black', linewidth=2, alpha=0.9))
         
-        plt.tight_layout()
-        fig.suptitle('📊 ANÁLISIS COMPLETO DE REGRESIÓN - Comparación de Modelos', 
-                    fontsize=14, fontweight='bold', y=1.00)
-        plt.subplots_adjust(top=0.96)
+        # Título general
+        fig.suptitle('>> COMPARACION COMPLETA DE MODELOS DE REGRESION <<', 
+                    fontsize=15, fontweight='bold', y=0.98)
         
         return fig
 
