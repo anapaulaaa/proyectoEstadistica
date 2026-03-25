@@ -7,6 +7,13 @@ from statistics import NormalDist
 class EstimacionTamanoMuestra:
     """Implementa formulas de tamano de muestra, estimacion puntual e intervalos."""
 
+    Z_COMUNES = {
+        90.0: 1.645,
+        95.0: 1.962,
+        97.5: 2.244,
+        99.0: 2.576,
+    }
+
     @classmethod
     def normalizar_confianza_porcentaje(cls, nivel_confianza):
         valor_str = str(nivel_confianza).strip()
@@ -31,9 +38,26 @@ class EstimacionTamanoMuestra:
     @classmethod
     def obtener_z(cls, nivel_confianza):
         confianza = cls.normalizar_confianza_porcentaje(nivel_confianza)
+        z_comun = cls.Z_COMUNES.get(round(confianza, 3))
+        if z_comun is not None:
+            return z_comun
+
         alpha = 1 - (confianza / 100)
         probabilidad = 1 - (alpha / 2)
         return NormalDist().inv_cdf(probabilidad)
+
+    @staticmethod
+    def normalizar_proporcion(valor, nombre="valor"):
+        """Acepta proporcion (0-1) o porcentaje (0-100) y devuelve proporcion."""
+        if valor < 0:
+            raise ValueError(f"{nombre} no puede ser negativo.")
+
+        if valor > 1:
+            if valor > 100:
+                raise ValueError(f"{nombre} no puede ser mayor que 100%.")
+            valor = valor / 100
+
+        return valor
 
     @classmethod
     def obtener_t_critico(cls, nivel_confianza, grados_libertad):
@@ -69,11 +93,15 @@ class EstimacionTamanoMuestra:
 
     @staticmethod
     def calcular_q(p):
+        p = EstimacionTamanoMuestra.normalizar_proporcion(p, "p")
         if p < 0 or p > 1:
             raise ValueError("p debe estar entre 0 y 1.")
         return 1 - p
 
     def tamano_muestra_proporcion_desconocida(self, z, p, d):
+        p = self.normalizar_proporcion(p, "p")
+        d = self.normalizar_proporcion(d, "d")
+
         self._validar_positivo(d, "d")
         if p < 0 or p > 1:
             raise ValueError("p debe estar entre 0 y 1.")
@@ -83,6 +111,9 @@ class EstimacionTamanoMuestra:
         return n
 
     def tamano_muestra_proporcion_conocida(self, n_poblacion, z, p, d):
+        p = self.normalizar_proporcion(p, "p")
+        d = self.normalizar_proporcion(d, "d")
+
         self._validar_positivo(d, "d")
         self._validar_positivo(n_poblacion, "N")
         if n_poblacion <= 1:
@@ -121,6 +152,12 @@ class EstimacionTamanoMuestra:
             raise ValueError("El porcentaje de perdidas debe ser menor que 100%.")
 
         return n / (1 - pe_proporcion)
+
+    @staticmethod
+    def ajuste_efecto_diseno(n, deff=1.0):
+        if deff <= 0:
+            raise ValueError("El efecto de diseno debe ser mayor que cero.")
+        return n * deff
 
     @staticmethod
     def estimacion_puntual_proporcion(x, n):

@@ -1,7 +1,8 @@
 """Modulo UI: temas de muestreo para Estadistica II."""
 
+import random
 import tkinter as tk
-from tkinter import ttk, scrolledtext
+from tkinter import messagebox, scrolledtext, ttk
 
 from config_interfaz import *
 
@@ -45,6 +46,109 @@ def abrir_modulo_muestreo(root):
         bg=BG_LIGHT,
         fg=COLOR_PRIMARY,
     ).pack(pady=12)
+
+    frame_selector = tk.LabelFrame(
+        ventana,
+        text="Selector de elementos",
+        padx=10,
+        pady=10,
+        bg=BG_WHITE,
+        font=("Helvetica", 11, "bold"),
+    )
+    frame_selector.pack(fill="x", padx=10, pady=(0, 8))
+
+    tk.Label(frame_selector, text="Elementos (separados por coma):", bg=BG_WHITE).grid(row=0, column=0, sticky="w", pady=4)
+    elementos_var = tk.StringVar(value="A,B,C,D,E,F,G,H,I,J")
+    tk.Entry(frame_selector, textvariable=elementos_var, width=70).grid(
+        row=0, column=1, columnspan=3, padx=6, pady=4, sticky="we"
+    )
+
+    tk.Label(frame_selector, text="Tamano de muestra (n):", bg=BG_WHITE).grid(row=1, column=0, sticky="w", pady=4)
+    n_var = tk.StringVar(value="4")
+    tk.Entry(frame_selector, textvariable=n_var, width=20).grid(row=1, column=1, padx=6, pady=4, sticky="w")
+
+    tk.Label(frame_selector, text="Metodo:", bg=BG_WHITE).grid(row=1, column=2, sticky="e", pady=4)
+    metodo_var = tk.StringVar(value="Aleatorio simple")
+    ttk.Combobox(
+        frame_selector,
+        textvariable=metodo_var,
+        state="readonly",
+        values=["Aleatorio simple", "Sistematico"],
+        width=24,
+    ).grid(row=1, column=3, padx=6, pady=4, sticky="w")
+
+    tk.Label(frame_selector, text="Semilla (opcional):", bg=BG_WHITE).grid(row=2, column=0, sticky="w", pady=4)
+    semilla_var = tk.StringVar(value="")
+    tk.Entry(frame_selector, textvariable=semilla_var, width=20).grid(row=2, column=1, padx=6, pady=4, sticky="w")
+
+    resultado_var = tk.StringVar(value="Muestra seleccionada: -")
+    tk.Label(
+        frame_selector,
+        textvariable=resultado_var,
+        bg=BG_WHITE,
+        fg=COLOR_PRIMARY,
+        font=("Helvetica", 10, "bold"),
+    ).grid(row=3, column=0, columnspan=4, sticky="w", pady=(8, 4))
+
+    def seleccionar_elementos():
+        try:
+            elementos = [e.strip() for e in elementos_var.get().split(",") if e.strip()]
+            if not elementos:
+                raise ValueError("Ingrese al menos un elemento.")
+
+            n = int(float(n_var.get()))
+            if n <= 0:
+                raise ValueError("n debe ser mayor que cero.")
+            if n > len(elementos):
+                raise ValueError("n no puede ser mayor que el numero de elementos.")
+
+            if semilla_var.get().strip():
+                random.seed(int(float(semilla_var.get())))
+
+            metodo = metodo_var.get()
+            if metodo == "Aleatorio simple":
+                muestra = random.sample(elementos, n)
+                detalle = "Muestreo aleatorio simple"
+            else:
+                n_total = len(elementos)
+                paso = max(1, n_total // n)
+                inicio = random.randint(0, paso - 1)
+
+                indices = []
+                idx = inicio
+                while idx < n_total and len(indices) < n:
+                    indices.append(idx)
+                    idx += paso
+
+                if len(indices) < n:
+                    faltan = n - len(indices)
+                    restantes = [i for i in range(n_total) if i not in indices]
+                    indices.extend(restantes[:faltan])
+
+                muestra = [elementos[i] for i in indices]
+                detalle = f"Muestreo sistematico (k={paso}, inicio={inicio + 1})"
+
+            resultado_var.set(f"Muestra seleccionada: {muestra}")
+            messagebox.showinfo("Seleccion completada", detalle)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo seleccionar la muestra:\n{e}")
+
+    tk.Button(
+        frame_selector,
+        text="Seleccionar elementos",
+        command=seleccionar_elementos,
+        bg=COLOR_SUCCESS,
+        fg="#000000",
+        font=("Helvetica", 10, "bold"),
+        cursor="hand2",
+        padx=12,
+        pady=6,
+        activebackground="#FFEB3B",
+        activeforeground="#000000",
+    ).grid(row=2, column=3, padx=6, pady=4, sticky="e")
+
+    frame_selector.grid_columnconfigure(1, weight=1)
+    frame_selector.grid_columnconfigure(3, weight=1)
 
     notebook = ttk.Notebook(ventana)
     notebook.pack(fill="both", expand=True, padx=10, pady=10)

@@ -105,6 +105,21 @@ def abrir_modulo_estimacion_tamano_muestra(root):
     ).pack(side="left", padx=5)
 
 
+def abrir_modulo_tamano_muestra(root):
+    """Abre directamente la ventana de tamano de muestra."""
+    _abrir_ventana_tamano_muestra(root)
+
+
+def abrir_modulo_estimacion_puntual(root):
+    """Abre directamente la ventana de estimacion puntual."""
+    _abrir_ventana_estimacion_puntual(root)
+
+
+def abrir_modulo_intervalos_confianza(root):
+    """Abre directamente la ventana de intervalos de confianza."""
+    _abrir_ventana_intervalos(root)
+
+
 def _abrir_ventana_tamano_muestra(root):
     estimador = EstimacionTamanoMuestra()
 

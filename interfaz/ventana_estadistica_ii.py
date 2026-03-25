@@ -4,7 +4,9 @@ import tkinter as tk
 
 from config_interfaz import *
 from interfaz.estadistica_ii import (
-    abrir_modulo_estimacion_tamano_muestra,
+    abrir_modulo_tamano_muestra,
+    abrir_modulo_estimacion_puntual,
+    abrir_modulo_intervalos_confianza,
     abrir_modulo_muestreo,
 )
 
@@ -74,12 +76,32 @@ class VentanaEstadisticaII:
 
         self._crear_card_tema(
             frame_botones,
-            "📊 Estimacion y Tamano de Muestra",
-            "Incluye: tamano de muestra, estimacion puntual e intervalos de confianza.",
-            abrir_modulo_estimacion_tamano_muestra,
-            "#F3E5F5",
-            "#4A148C",
-            "#4A2A62",
+            "📐 Tamano de Muestra",
+            "Calculo de n y ajuste por perdidas.",
+            abrir_modulo_tamano_muestra,
+            "#E3F2FD",
+            "#0D47A1",
+            "#1565C0",
+        )
+
+        self._crear_card_tema(
+            frame_botones,
+            "🎯 Estimacion Puntual",
+            "Estimacion de p y q en muestras o poblacion conocida.",
+            abrir_modulo_estimacion_puntual,
+            "#E8F5E9",
+            "#1B5E20",
+            "#2E7D32",
+        )
+
+        self._crear_card_tema(
+            frame_botones,
+            "📏 Intervalos de Confianza",
+            "Intervalos para proporciones y medias.",
+            abrir_modulo_intervalos_confianza,
+            "#FFF8E1",
+            "#F57F17",
+            "#E65100",
         )
 
         self._crear_card_tema(
