@@ -6,6 +6,8 @@ Integra: Login → Menú → Funcionalidades
 import tkinter as tk
 from interfaz.pantalla_login import PantallaLogin
 from interfaz.menu_principal import MenuPrincipal
+from interfaz.selector_nivel import SelectorNivel
+from interfaz.ventana_estadistica_ii import VentanaEstadisticaII
 from config_interfaz import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
@@ -41,11 +43,32 @@ class StatProMain:
         self.usuario_actual = usuario
         print(f"✅ Usuario logueado: {usuario}")
         
-        # Mostrar menú principal
-        self.mostrar_menu_principal()
+        # Mostrar selector de modulo
+        self.mostrar_selector_nivel()
+
+    def mostrar_selector_nivel(self):
+        """Muestra el selector de Estadistica I o Estadistica II"""
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        self.root.geometry("1200x750")
+        self.root.resizable(True, True)
+
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (1200 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (750 // 2)
+        self.root.geometry(f'1200x750+{x}+{y}')
+
+        SelectorNivel(
+            self.root,
+            self.usuario_actual,
+            self.mostrar_menu_principal,
+            self.mostrar_estadistica_ii,
+            self.on_cerrar_sesion,
+        )
     
     def mostrar_menu_principal(self):
-        """Muestra el menú principal"""
+        """Muestra la ventana de Estadistica I"""
         # Limpiar ventana
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -62,6 +85,26 @@ class StatProMain:
         
         # Crear menú principal
         MenuPrincipal(self.root, self.usuario_actual, self.on_cerrar_sesion)
+
+    def mostrar_estadistica_ii(self):
+        """Muestra la ventana placeholder de Estadistica II"""
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        self.root.geometry("1200x750")
+        self.root.resizable(True, True)
+
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (1200 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (750 // 2)
+        self.root.geometry(f'1200x750+{x}+{y}')
+
+        VentanaEstadisticaII(
+            self.root,
+            self.usuario_actual,
+            self.mostrar_selector_nivel,
+            self.on_cerrar_sesion,
+        )
     
     def on_cerrar_sesion(self):
         """Callback cuando se cierra sesión"""

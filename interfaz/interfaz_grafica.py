@@ -1,6 +1,14 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog as sd
+import os
+import sys
 import pandas as pd
+
+# Permite ejecutar este archivo directamente sin perder imports del proyecto.
+PROYECTO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROYECTO_ROOT not in sys.path:
+    sys.path.insert(0, PROYECTO_ROOT)
+
 from utils.cargar_datos import importar_csv
 from estadistica_descriptiva.analisis_estadistico import calcular_tendencia_central, generar_dfs, generar_dfsvai
 from estadistica_descriptiva.graficas import graficar_tendencia, graficar_frecuencia

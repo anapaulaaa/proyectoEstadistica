@@ -25,6 +25,8 @@ from .bayes import TeoremaBayes
 
 from .diagramas_arbol import DiagramaArbol
 
+from .estimacion_tamano_muestra import EstimacionTamanoMuestra
+
 __all__ = [
     # Probabilidades
     'ProbabilidadesElementales',
@@ -47,7 +49,10 @@ __all__ = [
     'TeoremaBayes',
     
     # Visualizaciones
-    'DiagramaArbol'
+    'DiagramaArbol',
+
+    # Estimacion y tamano de muestra
+    'EstimacionTamanoMuestra'
 ]
 
 __version__ = '1.0'
