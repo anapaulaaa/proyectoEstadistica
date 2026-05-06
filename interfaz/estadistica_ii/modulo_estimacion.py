@@ -2,6 +2,7 @@
 
 import tkinter as tk
 from tkinter import ttk, messagebox
+from statistics import mean, median
 
 from config_interfaz import *
 from estadistica_inferencial.estimacion_tamano_muestra import EstimacionTamanoMuestra
@@ -15,6 +16,15 @@ def _centrar_ventana(ventana, proporcion_w=0.8, proporcion_h=0.8):
     x = (screen_width - window_width) // 2
     y = (screen_height - window_height) // 2
     ventana.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+
+def _ajustar_ventana_pantalla(ventana, proporcion_w=0.9, proporcion_h=0.85, min_w=1000, min_h=680):
+    _centrar_ventana(ventana, proporcion_w, proporcion_h)
+    ventana.minsize(min_w, min_h)
+    try:
+        ventana.state("zoomed")
+    except Exception:
+        pass
 
 
 def abrir_modulo_estimacion_tamano_muestra(root):
@@ -46,7 +56,7 @@ def abrir_modulo_estimacion_tamano_muestra(root):
     botones = [
         ("📐 Tamano de Muestra", lambda: _abrir_ventana_tamano_muestra(root), "#E3F2FD", "#0D47A1"),
         ("🎯 Estimacion Puntual", lambda: _abrir_ventana_estimacion_puntual(root), "#E8F5E9", "#1B5E20"),
-        ("📏 Intervalos de Confianza", lambda: _abrir_ventana_intervalos(root), "#FFF8E1", "#F57F17"),
+        ("📏 Intervalos de Confianza", lambda: abrir_modulo_intervalos_confianza(root), "#FFF8E1", "#F57F17"),
     ]
 
     for texto, comando, bg_card, fg_card in botones:
@@ -117,7 +127,9 @@ def abrir_modulo_estimacion_puntual(root):
 
 def abrir_modulo_intervalos_confianza(root):
     """Abre directamente la ventana de intervalos de confianza."""
-    _abrir_ventana_intervalos(root)
+    from interfaz.estadistica_ii.modulo_intervalos_confianza import abrir_modulo_intervalos_confianza as _abrir
+
+    _abrir(root)
 
 
 def _abrir_ventana_tamano_muestra(root):
@@ -125,7 +137,7 @@ def _abrir_ventana_tamano_muestra(root):
 
     ventana = tk.Toplevel(root)
     ventana.title("📐 Tamano de Muestra")
-    _centrar_ventana(ventana, 0.78, 0.72)
+    _ajustar_ventana_pantalla(ventana, 0.9, 0.84)
     ventana.configure(bg=BG_LIGHT)
 
     frame = tk.LabelFrame(
@@ -137,6 +149,8 @@ def _abrir_ventana_tamano_muestra(root):
         pady=12,
     )
     frame.pack(fill="both", expand=True, padx=10, pady=10)
+    for col in range(4):
+        frame.columnconfigure(col, weight=1)
 
     tipo_var = tk.StringVar(value="Proporciones")
     caso_var = tk.StringVar(value="Poblacion desconocida")
@@ -147,8 +161,9 @@ def _abrir_ventana_tamano_muestra(root):
     n_pob_var = tk.StringVar(value="")
     ajuste_var = tk.BooleanVar(value=False)
     pe_var = tk.StringVar(value="")
+    precision_var = tk.StringVar(value="4")
 
-    tk.Label(frame, text="Tipo:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=0, sticky="w", pady=5)
+    tk.Label(frame, text="Tipo de cálculo:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=0, sticky="w", pady=5)
     ttk.Combobox(
         frame,
         textvariable=tipo_var,
@@ -157,7 +172,7 @@ def _abrir_ventana_tamano_muestra(root):
         width=24,
     ).grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-    tk.Label(frame, text="Caso:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=2, sticky="w", pady=5)
+    tk.Label(frame, text="Conocimiento poblacional:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=2, sticky="w", pady=5)
     ttk.Combobox(
         frame,
         textvariable=caso_var,
@@ -166,39 +181,45 @@ def _abrir_ventana_tamano_muestra(root):
         width=24,
     ).grid(row=0, column=3, padx=5, pady=5, sticky="w")
 
+    tk.Label(frame, text="Decimales de salida:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=4, sticky="w", pady=5, padx=(10, 5))
+    ttk.Combobox(frame, textvariable=precision_var, state="readonly", values=["4", "2"], width=8).grid(row=0, column=5, padx=5, pady=5, sticky="w")
+
     tk.Label(frame, text="Nivel de confianza (%):", bg=BG_WHITE).grid(row=1, column=0, sticky="w", pady=5)
     tk.Entry(frame, textvariable=conf_var, width=28).grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
     tk.Label(frame, text="Margen de error (d):", bg=BG_WHITE).grid(row=1, column=2, sticky="w", pady=5)
     tk.Entry(frame, textvariable=d_var, width=28).grid(row=1, column=3, padx=5, pady=5, sticky="w")
 
-    label_p = tk.Label(frame, text="p (proporcion esperada):", bg=BG_WHITE)
+    label_p = tk.Label(frame, text="Proporción esperada (p):", bg=BG_WHITE)
     label_p.grid(row=2, column=0, sticky="w", pady=5)
     entry_p = tk.Entry(frame, textvariable=p_var, width=28)
     entry_p.grid(row=2, column=1, padx=5, pady=5, sticky="w")
 
-    label_s = tk.Label(frame, text="s (desviacion estandar):", bg=BG_WHITE)
+    label_s = tk.Label(frame, text="Desviación estándar (s):", bg=BG_WHITE)
     label_s.grid(row=3, column=0, sticky="w", pady=5)
     entry_s = tk.Entry(frame, textvariable=s_var, width=28)
     entry_s.grid(row=3, column=1, padx=5, pady=5, sticky="w")
 
-    label_n = tk.Label(frame, text="N (tamano poblacional):", bg=BG_WHITE)
+    label_n = tk.Label(frame, text="Tamaño de población (N):", bg=BG_WHITE)
     label_n.grid(row=2, column=2, sticky="w", pady=5)
     entry_n = tk.Entry(frame, textvariable=n_pob_var, width=28)
     entry_n.grid(row=2, column=3, padx=5, pady=5, sticky="w")
 
     chk_ajuste = tk.Checkbutton(
         frame,
-        text="Aplicar ajuste por perdidas",
+        text="Aplicar ajuste por pérdidas",
         variable=ajuste_var,
         bg=BG_WHITE,
         activebackground=BG_WHITE,
     )
     chk_ajuste.grid(row=4, column=0, sticky="w", pady=5)
 
-    tk.Label(frame, text="pe (% o proporcion):", bg=BG_WHITE).grid(row=4, column=2, sticky="w", pady=5)
+    tk.Label(frame, text="Pérdidas esperadas (% o proporción):", bg=BG_WHITE).grid(row=4, column=2, sticky="w", pady=5)
     entry_pe = tk.Entry(frame, textvariable=pe_var, width=28, state="disabled")
     entry_pe.grid(row=4, column=3, padx=5, pady=5, sticky="w")
+
+    for col in range(6):
+        frame.columnconfigure(col, weight=1)
 
     lbl_tipo = tk.Label(
         frame,
@@ -212,7 +233,7 @@ def _abrir_ventana_tamano_muestra(root):
     formula_tm_var = tk.StringVar()
     frame_formula_tm = tk.LabelFrame(
         frame,
-        text="Formula aplicada",
+        text="Fórmula aplicada",
         bg="#F9FBE7",
         font=("Helvetica", 10, "bold"),
         padx=10,
@@ -229,7 +250,7 @@ def _abrir_ventana_tamano_muestra(root):
         font=("Consolas", 10),
     ).pack(fill="x")
 
-    resultado_var = tk.StringVar(value="n: -    |    nc: -")
+    resultado_var = tk.StringVar(value="Tamaño mínimo (n): -    |    Ajustado (nc): -")
     tk.Label(
         frame,
         textvariable=resultado_var,
@@ -239,6 +260,7 @@ def _abrir_ventana_tamano_muestra(root):
     ).grid(row=7, column=0, columnspan=4, sticky="w", pady=10)
 
     def actualizar_campos(*_):
+        resultado_var.set("Tamaño mínimo (n): -    |    Ajustado (nc): -")
         if tipo_var.get() == "Proporciones":
             label_p.grid()
             entry_p.grid()
@@ -276,6 +298,7 @@ def _abrir_ventana_tamano_muestra(root):
 
     def calcular():
         try:
+            decimales = int(precision_var.get())
             z = estimador.obtener_z(conf_var.get())
             d = float(d_var.get())
             if d <= 0:
@@ -304,16 +327,30 @@ def _abrir_ventana_tamano_muestra(root):
                 pe = float(pe_var.get())
                 nc = estimador.ajuste_perdidas(n_redondeado, pe)
                 nc = estimador.redondear_tamano_muestra(nc)
-                resultado_var.set(f"n: {n_redondeado}    |    nc: {nc}")
+                resultado_var.set(
+                    f"Tamaño mínimo (n): {n_calculado:.{decimales}f}    |    Redondeado: {n_redondeado}    |    Ajustado (nc): {nc:.{decimales}f}"
+                )
             else:
-                resultado_var.set(f"n: {n_redondeado}    |    nc: -")
+                resultado_var.set(
+                    f"Tamaño mínimo (n): {n_calculado:.{decimales}f}    |    Redondeado: {n_redondeado}    |    Ajustado (nc): -"
+                )
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo calcular tamano de muestra:\n{e}")
 
+    def limpiar():
+        for variable in (p_var, s_var, d_var, n_pob_var, pe_var, conf_var):
+            variable.set("")
+        ajuste_var.set(False)
+        resultado_var.set("Tamaño mínimo (n): -    |    Ajustado (nc): -")
+        actualizar_campos()
+
     tipo_var.trace_add("write", actualizar_campos)
     caso_var.trace_add("write", actualizar_campos)
     ajuste_var.trace_add("write", actualizar_campos)
+    precision_var.trace_add("write", lambda *_: calcular())
+    for variable in (conf_var, d_var, p_var, s_var, n_pob_var, pe_var):
+        variable.trace_add("write", lambda *_: resultado_var.set("Tamaño mínimo (n): -    |    Ajustado (nc): -"))
 
     tk.Button(
         frame,
@@ -327,7 +364,21 @@ def _abrir_ventana_tamano_muestra(root):
         pady=8,
         activebackground="#FFEB3B",
         activeforeground="#000000",
-    ).grid(row=8, column=0, columnspan=4, pady=12)
+    ).grid(row=8, column=0, columnspan=2, pady=12, sticky="e")
+
+    tk.Button(
+        frame,
+        text="🧹 Limpiar",
+        command=limpiar,
+        bg=COLOR_WARNING,
+        fg="#000000",
+        font=("Helvetica", 11, "bold"),
+        cursor="hand2",
+        padx=20,
+        pady=8,
+        activebackground="#FFEB3B",
+        activeforeground="#000000",
+    ).grid(row=8, column=2, columnspan=2, pady=12, sticky="w")
 
     actualizar_campos()
 
@@ -337,12 +388,12 @@ def _abrir_ventana_estimacion_puntual(root):
 
     ventana = tk.Toplevel(root)
     ventana.title("🎯 Estimacion Puntual")
-    _centrar_ventana(ventana, 0.62, 0.56)
+    _ajustar_ventana_pantalla(ventana, 0.82, 0.76, 960, 640)
     ventana.configure(bg=BG_LIGHT)
 
     frame = tk.LabelFrame(
         ventana,
-        text="Estimacion de Proporciones",
+        text="Estimación puntual de parámetros",
         bg=BG_WHITE,
         font=("Helvetica", 11, "bold"),
         padx=12,
@@ -350,37 +401,51 @@ def _abrir_ventana_estimacion_puntual(root):
     )
     frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-    modo_var = tk.StringVar(value="Proporcion muestral (p_hat = x/n)")
+    modo_var = tk.StringVar(value="Proporción muestral (p = x/n)")
     x_var = tk.StringVar(value="50")
     n_var = tk.StringVar(value="100")
     p_pob_var = tk.StringVar(value="0.5")
+    datos_var = tk.StringVar(value="12, 15, 18, 20, 22")
+    precision_var = tk.StringVar(value="4")
 
-    tk.Label(frame, text="Tipo de proporcion:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=0, sticky="w", pady=5)
+    tk.Label(frame, text="Tipo de estimación:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=0, sticky="w", pady=5)
     ttk.Combobox(
         frame,
         textvariable=modo_var,
         state="readonly",
         width=34,
         values=[
-            "Proporcion muestral (p_hat = x/n)",
-            "Proporcion poblacional (p conocida)",
+            "Proporción muestral (p = x/n)",
+            "Proporción poblacional (p conocida)",
+            "Media y mediana muestral",
         ],
     ).grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-    label_x = tk.Label(frame, text="x (exitos):", bg=BG_WHITE)
+    tk.Label(frame, text="Decimales de salida:", bg=BG_WHITE, font=("Helvetica", 10, "bold")).grid(row=0, column=2, sticky="w", pady=5, padx=(10, 5))
+    ttk.Combobox(frame, textvariable=precision_var, state="readonly", values=["4", "2"], width=8).grid(row=0, column=3, padx=5, pady=5, sticky="w")
+
+    label_x = tk.Label(frame, text="Número de éxitos (x):", bg=BG_WHITE)
     label_x.grid(row=1, column=0, sticky="w", pady=5)
     entry_x = tk.Entry(frame, textvariable=x_var, width=36)
     entry_x.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
-    label_n = tk.Label(frame, text="n (muestra):", bg=BG_WHITE)
+    label_n = tk.Label(frame, text="Tamaño de muestra (n):", bg=BG_WHITE)
     label_n.grid(row=2, column=0, sticky="w", pady=5)
     entry_n = tk.Entry(frame, textvariable=n_var, width=36)
     entry_n.grid(row=2, column=1, padx=5, pady=5, sticky="w")
 
-    label_p_pob = tk.Label(frame, text="p poblacional conocida:", bg=BG_WHITE)
+    label_p_pob = tk.Label(frame, text="Proporción poblacional conocida (p):", bg=BG_WHITE)
     label_p_pob.grid(row=3, column=0, sticky="w", pady=5)
     entry_p_pob = tk.Entry(frame, textvariable=p_pob_var, width=36)
     entry_p_pob.grid(row=3, column=1, padx=5, pady=5, sticky="w")
+
+    label_datos = tk.Label(frame, text="Datos muestrales (separados por coma):", bg=BG_WHITE)
+    label_datos.grid(row=4, column=0, sticky="w", pady=5)
+    entry_datos = tk.Entry(frame, textvariable=datos_var, width=36)
+    entry_datos.grid(row=4, column=1, padx=5, pady=5, sticky="w")
+
+    for col in range(4):
+        frame.columnconfigure(col, weight=1)
 
     formula_ep_var = tk.StringVar()
     frame_formula_ep = tk.LabelFrame(
@@ -391,7 +456,7 @@ def _abrir_ventana_estimacion_puntual(root):
         padx=10,
         pady=8,
     )
-    frame_formula_ep.grid(row=4, column=0, columnspan=2, sticky="we", pady=(0, 8))
+    frame_formula_ep.grid(row=5, column=0, columnspan=2, sticky="we", pady=(0, 8))
     tk.Label(
         frame_formula_ep,
         textvariable=formula_ep_var,
@@ -402,22 +467,35 @@ def _abrir_ventana_estimacion_puntual(root):
         font=("Consolas", 10),
     ).pack(fill="x")
 
-    resultado_var = tk.StringVar(value="p: -    |    q: -")
+    resultado_var = tk.StringVar(value="Resultado: -")
     tk.Label(
         frame,
         textvariable=resultado_var,
         bg=BG_WHITE,
         fg=COLOR_PRIMARY,
         font=("Helvetica", 12, "bold"),
-    ).grid(row=5, column=0, columnspan=2, sticky="w", pady=10)
+    ).grid(row=6, column=0, columnspan=2, sticky="w", pady=10)
 
-    ayuda_var = tk.StringVar(value="Muestral: estima p_hat a partir de x y n.")
+    ayuda_var = tk.StringVar(value="Muestral: estima p a partir de x y n.")
     tk.Label(frame, textvariable=ayuda_var, bg=BG_WHITE, fg=TEXT_MUTED, font=("Helvetica", 9, "italic")).grid(
-        row=6, column=0, columnspan=2, sticky="w", pady=(0, 8)
+        row=7, column=0, columnspan=2, sticky="w", pady=(0, 8)
     )
 
+    estado_var = tk.StringVar(value="")
+    tk.Label(frame, textvariable=estado_var, bg=BG_WHITE, fg=COLOR_DANGER, font=("Helvetica", 9, "italic")).grid(
+        row=8, column=0, columnspan=2, sticky="w"
+    )
+
+    for col in range(2):
+        frame.columnconfigure(col, weight=1)
+
     def actualizar_campos(*_):
-        es_muestral = modo_var.get().startswith("Proporcion muestral")
+        resultado_var.set("Resultado: -")
+        estado_var.set("")
+        modo = modo_var.get()
+        es_muestral = modo.startswith("Proporción muestral")
+        es_media_mediana = modo == "Media y mediana muestral"
+
         if es_muestral:
             label_x.grid()
             entry_x.grid()
@@ -425,8 +503,21 @@ def _abrir_ventana_estimacion_puntual(root):
             entry_n.grid()
             label_p_pob.grid_remove()
             entry_p_pob.grid_remove()
-            ayuda_var.set("Muestral: estima p_hat a partir de x y n.")
-            formula_ep_var.set("p_hat = x / n\nq_hat = 1 - p_hat")
+            label_datos.grid_remove()
+            entry_datos.grid_remove()
+            ayuda_var.set("Muestral: estima la proporción p a partir de x y n.")
+            formula_ep_var.set("p = x / n\nq = 1 - p")
+        elif es_media_mediana:
+            label_x.grid_remove()
+            entry_x.grid_remove()
+            label_n.grid_remove()
+            entry_n.grid_remove()
+            label_p_pob.grid_remove()
+            entry_p_pob.grid_remove()
+            label_datos.grid()
+            entry_datos.grid()
+            ayuda_var.set("Ingrese valores numéricos separados por coma para estimar media y mediana.")
+            formula_ep_var.set("Media = Σxi / n\nMediana = valor central ordenado")
         else:
             label_x.grid_remove()
             entry_x.grid_remove()
@@ -434,26 +525,52 @@ def _abrir_ventana_estimacion_puntual(root):
             entry_n.grid_remove()
             label_p_pob.grid()
             entry_p_pob.grid()
+            label_datos.grid_remove()
+            entry_datos.grid_remove()
             ayuda_var.set("Poblacional: usa p conocida del parametro poblacional.")
             formula_ep_var.set("p = dato poblacional conocido\nq = 1 - p")
 
     def calcular():
         try:
-            if modo_var.get().startswith("Proporcion muestral"):
+            decimales = int(precision_var.get())
+            estado_var.set("")
+            if modo_var.get().startswith("Proporción muestral"):
                 x = float(x_var.get())
                 n = float(n_var.get())
                 p = estimador.estimacion_puntual_proporcion(x, n)
+                q = estimador.calcular_q(p)
+                resultado_var.set(f"Proporción estimada (p): {p:.{decimales}f}    |    Complemento (q): {q:.{decimales}f}")
+            elif modo_var.get() == "Media y mediana muestral":
+                tokens = [item.strip().replace(",", ".") for item in datos_var.get().split(",") if item.strip()]
+                if not tokens:
+                    resultado_var.set("Resultado: -")
+                    return
+                datos = [float(item) for item in tokens]
+                media_val = mean(datos)
+                mediana_val = median(datos)
+                resultado_var.set(f"Media estimada: {media_val:.{decimales}f}    |    Mediana estimada: {mediana_val:.{decimales}f}")
             else:
                 p = float(p_pob_var.get())
                 if p < 0 or p > 1:
                     raise ValueError("p debe estar entre 0 y 1")
-
-            q = estimador.calcular_q(p)
-            resultado_var.set(f"p: {p:.6f}    |    q: {q:.6f}")
+                q = estimador.calcular_q(p)
+                resultado_var.set(f"Proporción poblacional (p): {p:.{decimales}f}    |    Complemento (q): {q:.{decimales}f}")
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo calcular la proporcion:\n{e}")
+            estado_var.set(str(e))
+
+    def limpiar():
+        x_var.set("")
+        n_var.set("")
+        p_pob_var.set("")
+        datos_var.set("")
+        estado_var.set("")
+        resultado_var.set("Resultado: -")
+        actualizar_campos()
 
     modo_var.trace_add("write", actualizar_campos)
+    precision_var.trace_add("write", lambda *_: calcular())
+    for variable in (x_var, n_var, p_pob_var, datos_var):
+        variable.trace_add("write", lambda *_: resultado_var.set("Resultado: -"))
 
     tk.Button(
         frame,
@@ -467,7 +584,21 @@ def _abrir_ventana_estimacion_puntual(root):
         pady=8,
         activebackground="#FFEB3B",
         activeforeground="#000000",
-    ).grid(row=7, column=0, columnspan=2, pady=12)
+    ).grid(row=9, column=0, columnspan=1, pady=12, sticky="e")
+
+    tk.Button(
+        frame,
+        text="🧹 Limpiar",
+        command=limpiar,
+        bg=COLOR_WARNING,
+        fg="#000000",
+        font=("Helvetica", 11, "bold"),
+        cursor="hand2",
+        padx=20,
+        pady=8,
+        activebackground="#FFEB3B",
+        activeforeground="#000000",
+    ).grid(row=9, column=1, pady=12, sticky="w")
 
     actualizar_campos()
 

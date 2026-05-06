@@ -3,7 +3,7 @@
 from .modulo_estimacion import abrir_modulo_estimacion_tamano_muestra
 from .modulo_estimacion import abrir_modulo_tamano_muestra
 from .modulo_estimacion import abrir_modulo_estimacion_puntual
-from .modulo_estimacion import abrir_modulo_intervalos_confianza
+from .modulo_intervalos_confianza import abrir_modulo_intervalos_confianza
 from .modulo_muestreo import abrir_modulo_muestreo
 
 __all__ = [

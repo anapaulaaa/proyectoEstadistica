@@ -97,7 +97,7 @@ class VentanaEstadisticaII:
         self._crear_card_tema(
             frame_botones,
             "📏 Intervalos de Confianza",
-            "Intervalos para proporciones y medias.",
+            "Incluye medias, proporciones, varianza y diferencias de medias.",
             abrir_modulo_intervalos_confianza,
             "#FFF8E1",
             "#F57F17",
@@ -131,7 +131,7 @@ class VentanaEstadisticaII:
 
     def _crear_card_tema(self, parent, titulo, descripcion, comando, bg, fg_titulo, fg_desc):
         card = tk.Frame(parent, bg=bg, relief="solid", borderwidth=2)
-        card.pack(fill="x", padx=80, pady=10)
+        card.pack(fill="x", padx=20, pady=10)
 
         tk.Label(
             card,
@@ -148,6 +148,7 @@ class VentanaEstadisticaII:
             bg=bg,
             fg=fg_desc,
             justify="center",
+            wraplength=1000,
         ).pack(pady=(0, 12))
 
         tk.Button(

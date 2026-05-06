@@ -18,6 +18,20 @@ class StatProMain:
         
         # Iniciar con pantalla de login
         self.mostrar_login()
+
+    def _maximizar_ventana(self):
+        """Intenta abrir la ventana ocupando toda la pantalla (multiplataforma)."""
+        self.root.update_idletasks()
+        w = self.root.winfo_screenwidth()
+        h = self.root.winfo_screenheight()
+        self.root.geometry(f"{w}x{h}+0+0")
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            try:
+                self.root.attributes("-zoomed", True)
+            except Exception:
+                pass
     
     def mostrar_login(self):
         """Muestra la pantalla de login"""
@@ -91,13 +105,8 @@ class StatProMain:
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        self.root.geometry("1200x750")
         self.root.resizable(True, True)
-
-        self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (1200 // 2)
-        y = (self.root.winfo_screenheight() // 2) - (750 // 2)
-        self.root.geometry(f'1200x750+{x}+{y}')
+        self._maximizar_ventana()
 
         VentanaEstadisticaII(
             self.root,

@@ -1,7 +1,7 @@
 """Calculos para estimacion e intervalos de confianza en Estadistica II."""
 
 import math
-from statistics import NormalDist
+from scipy import stats
 
 
 class EstimacionTamanoMuestra:
@@ -9,7 +9,7 @@ class EstimacionTamanoMuestra:
 
     Z_COMUNES = {
         90.0: 1.645,
-        95.0: 1.962,
+        95.0: 1.96,
         97.5: 2.244,
         99.0: 2.576,
     }
@@ -44,7 +44,7 @@ class EstimacionTamanoMuestra:
 
         alpha = 1 - (confianza / 100)
         probabilidad = 1 - (alpha / 2)
-        return NormalDist().inv_cdf(probabilidad)
+        return stats.norm.ppf(probabilidad)
 
     @staticmethod
     def normalizar_proporcion(valor, nombre="valor"):
@@ -61,25 +61,14 @@ class EstimacionTamanoMuestra:
 
     @classmethod
     def obtener_t_critico(cls, nivel_confianza, grados_libertad):
-        """Aproxima t critico bilateral usando expansion de Cornish-Fisher."""
+        """Obtiene el t critico bilateral exacto usando scipy.stats."""
         gl = int(grados_libertad)
         if gl <= 0:
             raise ValueError("Los grados de libertad deben ser mayores que 0.")
 
-        z = cls.obtener_z(nivel_confianza)
-        if gl > 200:
-            return z
-
-        v = float(gl)
-        z3 = z**3
-        z5 = z**5
-        z7 = z**7
-
-        t = z
-        t += (z3 + z) / (4 * v)
-        t += (5 * z5 + 16 * z3 + 3 * z) / (96 * (v**2))
-        t += (3 * z7 + 19 * z5 + 17 * z3 - 15 * z) / (384 * (v**3))
-        return t
+        confianza = cls.normalizar_confianza_porcentaje(nivel_confianza)
+        alpha = 1 - (confianza / 100)
+        return stats.t.ppf(1 - alpha / 2, gl)
 
     @staticmethod
     def _validar_no_negativo(valor, nombre):
