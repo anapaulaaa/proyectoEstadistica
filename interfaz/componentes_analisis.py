@@ -10,6 +10,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from config_interfaz import *
 from utils.tooltip import crear_tooltip
+from utils.app_paths import resource_path
 
 
 class VentanaAnalisis(tk.Toplevel):
@@ -512,7 +513,7 @@ class VentanaAnalisis(tk.Toplevel):
     def cargar_ejemplo(self):
         """Carga un ejemplo real del proyecto para análisis descriptivo."""
         try:
-            ruta = Path(__file__).resolve().parent.parent / "datos" / "datos_completo_estudiantes.csv"
+            ruta = resource_path("datos", "datos_completo_estudiantes.csv")
             from utils.cargar_datos import importar_csv
             datos = importar_csv(ruta)
             if datos is None:

@@ -16,6 +16,38 @@ Este repositorio contiene el proyecto final del curso de **Estadística**, en el
 - `numpy` → operaciones numéricas.
 - (Opcional) `scipy` → funciones estadísticas.
 
+## Empaquetado
+Este proyecto se puede convertir en una aplicación distribuible por plataforma con `PyInstaller`.
+
+### Importante
+No existe un único instalador que funcione nativamente en Windows y macOS al mismo tiempo. Debes generar uno por sistema operativo:
+- En macOS se genera una app `.app` y, si quieres, luego la puedes comprimir en `.dmg`.
+- En Windows se genera un `.exe`.
+
+### Construcción
+1. Instala dependencias:
+	```bash
+	pip install -r requirements.txt
+	```
+2. Genera el paquete en la máquina correspondiente:
+	```bash
+	python build_installer.py --clean
+	```
+	O si prefieres un solo archivo por plataforma:
+	```bash
+	python build_installer.py --clean --onefile
+	```
+
+### Windows
+En una computadora con Windows, usa `build_windows.bat` desde la raíz del proyecto. Ese script instalará dependencias y generará `dist\StatPro.exe`.
+
+### Archivos de salida
+- macOS: `dist/StatPro.app` o `dist/StatPro`
+- Windows: `dist/StatPro.exe` o carpeta `dist/StatPro/`
+
+### Nota sobre recursos
+El programa ya fue ajustado para localizar correctamente el logo, los CSV de ejemplo y la carpeta de exportación cuando se ejecuta empaquetado.
+
 
 ### Notas
 El repositorio puede ampliarse con más ejemplos y datasets.

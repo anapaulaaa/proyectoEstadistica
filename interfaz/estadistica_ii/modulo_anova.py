@@ -298,6 +298,20 @@ def _parsear_lista_numeros(texto):
     return valores
 
 
+def _parsear_tabla_portapapeles(texto):
+    lineas = [linea.strip() for linea in str(texto).replace("\r", "\n").split("\n") if linea.strip()]
+    tabla = []
+    for linea in lineas:
+        if "\t" in linea:
+            celdas = [celda.strip() for celda in linea.split("\t")]
+        elif ";" in linea:
+            celdas = [celda.strip() for celda in linea.split(";")]
+        else:
+            celdas = [celda.strip() for celda in re.split(r"\s{2,}", linea) if celda.strip()]
+        tabla.append(celdas)
+    return tabla
+
+
 def _limpiar_frame(frame):
     for widget in frame.winfo_children():
         widget.destroy()
@@ -420,6 +434,46 @@ class VentanaAnova1Factor(_BaseAnovaView):
         self.valor_entries = []
         self._construir()
 
+    def _vincular_pegado(self, entry, fila, columna):
+        entry.anova_coords = (fila, columna)
+        entry.bind("<Control-v>", self._pegar_tabla)
+        entry.bind("<Command-v>", self._pegar_tabla)
+        entry.bind("<<Paste>>", self._pegar_tabla)
+
+    def _pegar_tabla(self, event):
+        coords = getattr(event.widget, "anova_coords", None)
+        if coords is None:
+            return
+
+        try:
+            texto = self.ventana.clipboard_get()
+        except Exception:
+            return "break"
+
+        tabla = _parsear_tabla_portapapeles(texto)
+        if not tabla:
+            return "break"
+
+        fila_inicio, columna_inicio = coords
+        max_filas = len(self.valor_entries)
+        max_columnas = len(self.nombre_vars)
+
+        if fila_inicio + len(tabla) > max_filas:
+            messagebox.showwarning("Pegado de tabla", "La tabla copiada tiene más filas que el espacio disponible.")
+            return "break"
+
+        ancho_tabla = max(len(fila) for fila in tabla)
+        if columna_inicio + ancho_tabla > max_columnas:
+            messagebox.showwarning("Pegado de tabla", "La tabla copiada tiene más columnas que el espacio disponible.")
+            return "break"
+
+        for desplazamiento_fila, fila in enumerate(tabla):
+            for desplazamiento_columna, valor in enumerate(fila):
+                entry = self.valor_entries[fila_inicio + desplazamiento_fila][columna_inicio + desplazamiento_columna]
+                entry.delete(0, tk.END)
+                entry.insert(0, valor)
+        return "break"
+
     def _construir(self):
         cont = self.frame
         _crear_titulo(cont, "ANOVA de 1 Factor", "Ingreso dinamico de grupos, resumen estadistico y tabla ANOVA estilo Excel.")
@@ -432,6 +486,15 @@ class VentanaAnova1Factor(_BaseAnovaView):
             COLOR_PRIMARY,
             "#1B5E20",
         )
+        tk.Label(
+            panel_control,
+            text="Tip: copia una tabla desde Excel y pégala en la primera celda para rellenar los datos.",
+            bg="#E8F5E9",
+            fg="#1B5E20",
+            font=("Helvetica", 9, "italic"),
+            justify="left",
+            wraplength=1200,
+        ).pack(anchor="w", pady=(0, 6))
 
         fila1 = tk.Frame(panel_control, bg=BG_WHITE)
         fila1.pack(fill="x", pady=4)
@@ -534,6 +597,7 @@ class VentanaAnova1Factor(_BaseAnovaView):
             for columna in range(grupos):
                 entry = tk.Entry(grid_frame, width=18, justify="center")
                 entry.grid(row=fila, column=columna + 1, padx=4, pady=3)
+                self._vincular_pegado(entry, fila, columna)
                 fila_entries.append(entry)
             self.valor_entries.append(fila_entries)
 
@@ -668,6 +732,46 @@ class _AnovaDosFactoresTab:
         self.referencias = {}
         self._construir(titulo, subtitulo)
 
+    def _vincular_pegado(self, entry, fila, columna):
+        entry.anova_coords = (fila, columna)
+        entry.bind("<Control-v>", self._pegar_tabla)
+        entry.bind("<Command-v>", self._pegar_tabla)
+        entry.bind("<<Paste>>", self._pegar_tabla)
+
+    def _pegar_tabla(self, event):
+        coords = getattr(event.widget, "anova_coords", None)
+        if coords is None:
+            return
+
+        try:
+            texto = self.parent.clipboard_get()
+        except Exception:
+            return "break"
+
+        tabla = _parsear_tabla_portapapeles(texto)
+        if not tabla:
+            return "break"
+
+        fila_inicio, columna_inicio = coords
+        max_filas = len(self.valor_entries)
+        max_columnas = len(self.nombre_columnas_vars)
+
+        if fila_inicio + len(tabla) > max_filas:
+            messagebox.showwarning("Pegado de tabla", "La tabla copiada tiene más filas que el espacio disponible.")
+            return "break"
+
+        ancho_tabla = max(len(fila) for fila in tabla)
+        if columna_inicio + ancho_tabla > max_columnas:
+            messagebox.showwarning("Pegado de tabla", "La tabla copiada tiene más columnas que el espacio disponible.")
+            return "break"
+
+        for desplazamiento_fila, fila in enumerate(tabla):
+            for desplazamiento_columna, valor in enumerate(fila):
+                entry = self.valor_entries[fila_inicio + desplazamiento_fila][columna_inicio + desplazamiento_columna]
+                entry.delete(0, tk.END)
+                entry.insert(0, valor)
+        return "break"
+
     def _construir(self, titulo, subtitulo):
         _crear_titulo(self.frame, titulo, subtitulo)
 
@@ -679,6 +783,15 @@ class _AnovaDosFactoresTab:
             COLOR_PRIMARY,
             "#1B5E20",
         )
+        tk.Label(
+            panel_control,
+            text="Tip: puedes copiar una tabla desde Excel y pegarla en la primera celda; la matriz se rellenará automáticamente.",
+            bg="#E8F5E9",
+            fg="#1B5E20",
+            font=("Helvetica", 9, "italic"),
+            justify="left",
+            wraplength=1200,
+        ).pack(anchor="w", pady=(0, 6))
 
         fila1 = tk.Frame(panel_control, bg=BG_WHITE)
         fila1.pack(fill="x", pady=4)
@@ -772,6 +885,7 @@ class _AnovaDosFactoresTab:
                 else:
                     entry = tk.Entry(grid, width=18, justify="center")
                 entry.grid(row=i, column=j + 1, padx=3, pady=3)
+                self._vincular_pegado(entry, i, j)
                 fila_entries.append(entry)
             self.valor_entries.append(fila_entries)
 

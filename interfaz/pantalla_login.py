@@ -13,6 +13,7 @@ from PIL import Image, ImageTk
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from config_interfaz import *
+from utils.app_paths import resource_path
 
 class PantallaLogin:
     def __init__(self, root, callback_exito):
@@ -204,15 +205,25 @@ class PantallaLogin:
         )
         btn_login.pack(pady=10)
 
+        # Aviso visible de acceso libre
+        lbl_invitado = tk.Label(
+            frame_login,
+            text="O también puedes entrar directamente como invitado",
+            font=("Helvetica", 9, "italic"),
+            bg=BG_LIGHT,
+            fg=TEXT_MUTED,
+        )
+        lbl_invitado.pack(pady=(2, 6))
+
         # Botón Invitado
         btn_invitado = tk.Button(
             frame_login,
-            text="👤 Acceso como Invitado",
+            text="👤 ENTRAR COMO INVITADO",
             command=self.login_invitado,
             bg=COLOR_INFO,
             fg="#000000",
             font=FONT_BUTTON,
-            width=25,
+            width=28,
             height=2,
             relief="flat",
             cursor="hand2",
@@ -256,14 +267,13 @@ class PantallaLogin:
 
     def _cargar_logo_login(self):
         """Carga el logo principal del login si existe en el proyecto."""
-        raiz = Path(__file__).resolve().parent.parent
         rutas_posibles = [
-            raiz / "assets" / "logo.png",
-            raiz / "assets" / "logo.jpg",
-            raiz / "assets" / "logo.jpeg",
-            raiz / "logo.png",
-            raiz / "logo.jpg",
-            raiz / "logo.jpeg",
+            resource_path("assets", "logo.png"),
+            resource_path("assets", "logo.jpg"),
+            resource_path("assets", "logo.jpeg"),
+            resource_path("logo.png"),
+            resource_path("logo.jpg"),
+            resource_path("logo.jpeg"),
         ]
 
         for ruta in rutas_posibles:
@@ -331,12 +341,7 @@ class PantallaLogin:
     
     def login_invitado(self):
         """Acceso rápido como invitado"""
-        respuesta = messagebox.askyesno(
-            "Acceso Invitado",
-            "¿Desea acceder como invitado?\n\nTendrá acceso completo al sistema."
-        )
-        if respuesta:
-            self.cerrar_y_continuar("invitado")
+        self.cerrar_y_continuar("invitado")
     
     def cerrar_y_continuar(self, usuario):
         """Cierra el login y ejecuta el callback"""

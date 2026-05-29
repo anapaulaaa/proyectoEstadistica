@@ -38,16 +38,18 @@ class StatProMain:
         # Limpiar ventana
         for widget in self.root.winfo_children():
             widget.destroy()
-        
-        # Reconfigurar la ventana para el login
-        self.root.geometry("500x650")
-        self.root.resizable(False, False)
-        
-        # Centrar la ventana del login
+
+        # Reconfigurar la ventana para el login con un tamaño más cómodo
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (500 // 2)
-        y = (self.root.winfo_screenheight() // 2) - (650 // 2)
-        self.root.geometry(f'500x650+{x}+{y}')
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        window_width = min(680, int(screen_width * 0.92))
+        window_height = min(860, int(screen_height * 0.92))
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        self.root.minsize(600, 760)
+        self.root.resizable(True, True)
         
         # Crear pantalla de login
         PantallaLogin(self.root, self.on_login_exitoso)
