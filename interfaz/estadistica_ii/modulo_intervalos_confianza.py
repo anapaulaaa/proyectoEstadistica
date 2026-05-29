@@ -174,6 +174,32 @@ class VentanaIntervalosConfianza:
 
         self._mostrar_calculadora(0)
 
+    def _valores_ejemplo_actuales(self):
+        ejemplos = [
+            {"n": "30", "media": "50", "sigma": "10", "nc": "0.95"},
+            {"n": "35", "media": "50", "s": "12", "nc": "0.95"},
+            {"n": "12", "media": "50", "s": "10", "nc": "0.95"},
+            {"n": "100", "p_hat": "0.35", "nc": "0.95"},
+            {"n": "20", "s2": "25", "nc": "0.95"},
+            {"n1": "20", "x1": "50", "sigma1": "10", "n2": "22", "x2": "45", "sigma2": "8", "nc": "0.95"},
+            {"n1": "20", "x1": "50", "s1": "10", "n2": "22", "x2": "45", "s2": "8", "nc": "0.95"},
+            {"n1": "20", "x1": "50", "s1": "10", "n2": "22", "x2": "45", "s2": "8", "nc": "0.95"},
+            {"n1": "35", "x1": "50", "s1": "10", "n2": "32", "x2": "45", "s2": "8", "nc": "0.95"},
+            {},
+        ]
+        if 0 <= self.indice_actual < len(ejemplos):
+            return ejemplos[self.indice_actual]
+        return {}
+
+    def _cargar_ejemplo_actual(self, entradas, recalcular, mensaje_estado=None):
+        valores = self._valores_ejemplo_actuales()
+        for nombre, variable in entradas.items():
+            if nombre in valores:
+                variable.set(valores[nombre])
+        if mensaje_estado and hasattr(self, "estado_ejemplo_var"):
+            self.estado_ejemplo_var.set(mensaje_estado)
+        recalcular()
+
     def _ajustar_ancho_canvas(self, event):
         self.canvas.itemconfigure(self.canvas_window, width=event.width)
 
@@ -432,6 +458,21 @@ class VentanaIntervalosConfianza:
         conclusion_var, estado_var = self._crear_conclusion_y_estado(frame_salidas)
         decimales = self._decimales_actuales()
 
+        self.estado_ejemplo_var = tk.StringVar(value="Cargue un ejemplo para ver valores guía preparados.")
+        tk.Label(
+            frame_entradas,
+            textvariable=self.estado_ejemplo_var,
+            bg="#E3F2FD",
+            fg="#0D47A1",
+            font=("Helvetica", 9, "italic"),
+            justify="left",
+            wraplength=520,
+            relief="solid",
+            borderwidth=1,
+            padx=10,
+            pady=6,
+        ).grid(row=_siguiente_fila_grid(frame_entradas), column=0, columnspan=4, sticky="we", pady=(0, 8))
+
         def recalcular():
             try:
                 valores = {}
@@ -464,6 +505,20 @@ class VentanaIntervalosConfianza:
         self._bind_recalculo(entradas.values(), recalcular)
         botones = tk.Frame(frame_entradas, bg="#E8F5E9")
         botones.grid(row=_siguiente_fila_grid(frame_entradas), column=0, columnspan=4, sticky="w", pady=(10, 0))
+
+        tk.Button(
+            botones,
+            text="🧪 Cargar ejemplo",
+            command=lambda: self._cargar_ejemplo_actual(entradas, recalcular, "Ejemplo cargado automáticamente con valores guía."),
+            bg="#8E24AA",
+            fg="#000000",
+            font=("Helvetica", 11, "bold"),
+            cursor="hand2",
+            padx=18,
+            pady=8,
+            activebackground="#BA68C8",
+            activeforeground="#000000",
+        ).pack(side="left", padx=(0, 8))
 
         tk.Button(
             botones,
@@ -593,6 +648,10 @@ class VentanaIntervalosConfianza:
         nc = _normalizar_confianza(valores["nc"])
         if n <= 1 or s < 0:
             raise ValueError("n debe ser mayor que 1 y s no puede ser negativa.")
+        if mostrar_si_n_menor_30 and n < 30:
+            raise ValueError("Use la Calculadora 3 cuando n sea menor que 30.")
+        if mostrar_siempre and n >= 30:
+            raise ValueError("Use la Calculadora 2 cuando n sea mayor o igual que 30.")
         if mostrar_siempre:
             estado = nota
         elif mostrar_si_n_menor_30:
@@ -955,6 +1014,31 @@ class VentanaIntervalosConfianza:
         sd_var = tk.StringVar(value="")
         n_var = tk.StringVar(value="")
 
+        estado_var = tk.StringVar(value="Puede usar el ejemplo precargado o alternar entre pares y resumen.")
+        tk.Label(
+            frame_entradas,
+            textvariable=estado_var,
+            bg="#E3F2FD",
+            fg="#0D47A1",
+            font=("Helvetica", 9, "italic"),
+            justify="left",
+            wraplength=520,
+            relief="solid",
+            borderwidth=1,
+            padx=10,
+            pady=6,
+        ).grid(row=2, column=0, columnspan=4, sticky="we", pady=(8, 0))
+
+        def cargar_ejemplo_pareado():
+            modo_var.set("Pares")
+            text_pares.delete("1.0", "end")
+            text_pares.insert("1.0", "10, 8\n12, 9\n11, 10\n13, 11")
+            dbar_var.set("")
+            sd_var.set("")
+            n_var.set("")
+            estado_var.set("Ejemplo cargado: pares comparativos listos para calcular.")
+            recalcular()
+
         tk.Label(frame_resumen, text="d̄", bg="#E8F5E9", font=("Helvetica", 10, "bold")).grid(row=0, column=0, sticky="w", pady=5)
         tk.Entry(frame_resumen, textvariable=dbar_var, width=18).grid(row=0, column=1, sticky="w", pady=5, padx=(0, 12))
         tk.Label(frame_resumen, text="sd", bg="#E8F5E9", font=("Helvetica", 10, "bold")).grid(row=0, column=2, sticky="w", pady=5)
@@ -1104,6 +1188,20 @@ class VentanaIntervalosConfianza:
 
         botones = tk.Frame(frame_entradas, bg="#E8F5E9")
         botones.grid(row=3, column=0, columnspan=4, sticky="w", pady=(10, 0))
+
+        tk.Button(
+            botones,
+            text="🧪 Cargar ejemplo",
+            command=cargar_ejemplo_pareado,
+            bg="#8E24AA",
+            fg="#000000",
+            font=("Helvetica", 11, "bold"),
+            cursor="hand2",
+            padx=18,
+            pady=8,
+            activebackground="#BA68C8",
+            activeforeground="#000000",
+        ).pack(side="left", padx=(0, 8))
 
         tk.Button(
             botones,

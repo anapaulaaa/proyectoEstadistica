@@ -164,6 +164,31 @@ class MenuPrincipal(MenuInferencialMixin):
             bg=COLOR_PRIMARY,
             fg=TEXT_LIGHT
         ).pack(side='left', padx=10)
+
+        if str(self.usuario).strip().lower() == "invitado":
+            tk.Label(
+                frame_usuario,
+                text="👤 Modo invitado activo",
+                font=("Helvetica", 10, "bold"),
+                bg=COLOR_PRIMARY,
+                fg="#FFF59D",
+                padx=10,
+            ).pack(side='left', padx=(0, 8))
+        else:
+            tk.Button(
+                frame_usuario,
+                text="👤 Entrar como Invitado",
+                command=self.cerrar_sesion,
+                bg=COLOR_INFO,
+                fg="#000000",
+                font=("Helvetica", 10, "bold"),
+                relief="flat",
+                cursor="hand2",
+                padx=12,
+                pady=5,
+                activebackground="#FFEB3B",
+                activeforeground="#000000",
+            ).pack(side='left', padx=(0, 8))
         
         btn_cerrar = tk.Button(
             frame_usuario,
@@ -637,7 +662,7 @@ class MenuPrincipal(MenuInferencialMixin):
 ╚══════════════════════════════════════════════════════════════════════╝
 
 🔹 PASO 1: Carga tus datos
-   → Click en "📁 Cargar CSV" o "🎲 Generar Datos Aleatorios"
+    → Click en "📁 Cargar CSV", "📚 Cargar Ejemplo" o "🎲 Generar Datos Aleatorios"
    
 🔹 PASO 2: Procesa la información
    → Click en "▶️ Procesar Datos Cargados"
@@ -902,7 +927,7 @@ class MenuPrincipal(MenuInferencialMixin):
 ╚══════════════════════════════════════════════════════════════════════╝
 
 🔹 PASO 1: Carga tus datos
-   → Click en "📁 Cargar CSV" o "🎲 Generar Datos Aleatorios"
+    → Click en "📁 Cargar CSV", "📚 Cargar Ejemplo" o "🎲 Generar Datos Aleatorios"
    
 🔹 PASO 2: Procesa la información
    → Click en "▶️ CALCULAR MEDIDAS"
@@ -1081,7 +1106,7 @@ class MenuPrincipal(MenuInferencialMixin):
 ╚══════════════════════════════════════════════════════════════════════╝
 
 🔹 PASO 1: Carga tus datos
-   → Click en "📁 Cargar CSV" o "🎲 Generar Datos Aleatorios"
+    → Click en "📁 Cargar CSV", "📚 Cargar Ejemplo" o "🎲 Generar Datos Aleatorios"
    
 🔹 PASO 2: Procesa la información
    → Click en "▶️ CALCULAR MEDIDAS DE POSICIÓN"
@@ -1175,7 +1200,7 @@ class MenuPrincipal(MenuInferencialMixin):
 ╚══════════════════════════════════════════════════════════════════════╝
 
 🔹 PASO 1: Carga tus datos
-   → Click en "📁 Cargar CSV" o "🎲 Generar Datos Aleatorios"
+    → Click en "📁 Cargar CSV", "📚 Cargar Ejemplo" o "🎲 Generar Datos Aleatorios"
    
 🔹 PASO 2: Procesa la información
    → Click en "▶️ CALCULAR MEDIDAS DE DISPERSIÓN"
@@ -1276,7 +1301,7 @@ class MenuPrincipal(MenuInferencialMixin):
 ╚══════════════════════════════════════════════════════════════════════╝
 
 🔹 PASO 1: Carga tus datos
-   → Click en "📁 Cargar CSV" o "🎲 Generar Datos Aleatorios"
+    → Click en "📁 Cargar CSV", "📚 Cargar Ejemplo" o "🎲 Generar Datos Aleatorios"
    
 🔹 PASO 2: Procesa la información
    → Click en "▶️ CALCULAR MEDIDAS DE FORMA"

@@ -92,6 +92,43 @@ class VentanaEstadisticaII:
             fg=TEXT_MUTED,
         ).pack(anchor="w", pady=(0, 20))
 
+        panel_resumen = tk.Frame(cont, bg="#E8F5E9", relief="solid", borderwidth=1)
+        panel_resumen.pack(fill="x", padx=20, pady=(0, 18))
+
+        tk.Label(
+            panel_resumen,
+            text="Preparado para la evaluación",
+            font=("Helvetica", 16, "bold"),
+            bg="#E8F5E9",
+            fg="#1B5E20",
+        ).pack(anchor="w", padx=16, pady=(14, 4))
+
+        tk.Label(
+            panel_resumen,
+            text=(
+                "Verifica aquí los apartados que normalmente se califican y entra directo al tema que necesitas practicar."
+            ),
+            font=("Helvetica", 10),
+            bg="#E8F5E9",
+            fg="#2E7D32",
+            wraplength=1150,
+            justify="left",
+        ).pack(anchor="w", padx=16, pady=(0, 10))
+
+        checklist = tk.Frame(panel_resumen, bg="#E8F5E9")
+        checklist.pack(fill="x", padx=16, pady=(0, 14))
+        items = [
+            "Intervalos de confianza para media, proporción y varianza",
+            "Intervalos de confianza para diferencia de medias",
+            "ANOVA de 1 factor para la demostración en clase",
+            "ANOVA de 2 factores con y sin replicación para repasar conceptos",
+        ]
+        for texto in items:
+            fila = tk.Frame(checklist, bg="#E8F5E9")
+            fila.pack(anchor="w", fill="x", pady=2)
+            tk.Label(fila, text="•", bg="#E8F5E9", fg="#1B5E20", font=("Helvetica", 12, "bold")).pack(side="left")
+            tk.Label(fila, text=texto, bg="#E8F5E9", fg="#1B5E20", font=("Helvetica", 10), wraplength=1120, justify="left").pack(side="left", padx=(6, 0))
+
         tk.Label(
             cont,
             text="Temas de Estadistica II",
@@ -102,6 +139,8 @@ class VentanaEstadisticaII:
 
         frame_botones = tk.Frame(cont, bg=BG_LIGHT)
         frame_botones.pack(fill="both", expand=True)
+        frame_botones.columnconfigure(0, weight=1)
+        frame_botones.columnconfigure(1, weight=1)
 
         self._crear_card_tema(
             frame_botones,

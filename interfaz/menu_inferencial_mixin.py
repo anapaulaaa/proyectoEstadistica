@@ -7,16 +7,42 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from math import comb
+import importlib
 
 from config_interfaz import *
-from estadistica_inferencial.probabilidades import ProbabilidadesElementales
-from estadistica_inferencial.distribuciones import DistribucionBernoulli, DistribucionBinomial
-from estadistica_inferencial.distribucion_normal import DistribucionNormal
-from estadistica_inferencial.distribucion_poisson import DistribucionPoisson
-from estadistica_inferencial.bayes import TeoremaBayes
-from estadistica_inferencial.regresion_correlacion import CorrelacionLineal, RegresionLinealSimple, RegresionNoLineal
-from estadistica_inferencial.diagramas_arbol import DiagramaArbol
-from estadistica_inferencial.chi_cuadrado import PruebaChiCuadrado
+from interfaz.componentes_analisis import VentanaAnalisis, crear_panel_instrucciones
+
+
+class _LazyClass:
+    def __init__(self, module_name, class_name):
+        self.module_name = module_name
+        self.class_name = class_name
+        self._cached_class = None
+
+    def _load(self):
+        if self._cached_class is None:
+            modulo = importlib.import_module(self.module_name)
+            self._cached_class = getattr(modulo, self.class_name)
+        return self._cached_class
+
+    def __call__(self, *args, **kwargs):
+        return self._load()(*args, **kwargs)
+
+    def __getattr__(self, atributo):
+        return getattr(self._load(), atributo)
+
+
+ProbabilidadesElementales = _LazyClass("estadistica_inferencial.probabilidades", "ProbabilidadesElementales")
+DistribucionBernoulli = _LazyClass("estadistica_inferencial.distribuciones", "DistribucionBernoulli")
+DistribucionBinomial = _LazyClass("estadistica_inferencial.distribuciones", "DistribucionBinomial")
+DistribucionNormal = _LazyClass("estadistica_inferencial.distribucion_normal", "DistribucionNormal")
+DistribucionPoisson = _LazyClass("estadistica_inferencial.distribucion_poisson", "DistribucionPoisson")
+TeoremaBayes = _LazyClass("estadistica_inferencial.bayes", "TeoremaBayes")
+CorrelacionLineal = _LazyClass("estadistica_inferencial.regresion_correlacion", "CorrelacionLineal")
+RegresionLinealSimple = _LazyClass("estadistica_inferencial.regresion_correlacion", "RegresionLinealSimple")
+RegresionNoLineal = _LazyClass("estadistica_inferencial.regresion_correlacion", "RegresionNoLineal")
+DiagramaArbol = _LazyClass("estadistica_inferencial.diagramas_arbol", "DiagramaArbol")
+PruebaChiCuadrado = _LazyClass("estadistica_inferencial.chi_cuadrado", "PruebaChiCuadrado")
 
 
 class MenuInferencialMixin:

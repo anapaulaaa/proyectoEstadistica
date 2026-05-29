@@ -66,6 +66,27 @@ class SelectorNivel:
             fg=TEXT_MUTED,
         ).pack(pady=(0, 25))
 
+        panel_info = tk.Frame(frame, bg="#FFF8E1", relief="solid", borderwidth=1)
+        panel_info.pack(fill="x", pady=(0, 24))
+        tk.Label(
+            panel_info,
+            text="Ruta sugerida para la clase",
+            font=("Helvetica", 14, "bold"),
+            bg="#FFF8E1",
+            fg="#8A6D00",
+        ).pack(anchor="w", padx=14, pady=(12, 4))
+        tk.Label(
+            panel_info,
+            text=(
+                "En Estadistica I trabajas la base descriptiva y la inferencial inicial. En Estadistica II practicas intervalos de confianza, estimacion muestral y ANOVA."
+            ),
+            font=("Helvetica", 10),
+            bg="#FFF8E1",
+            fg="#6F5F20",
+            wraplength=1100,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 12))
+
         botones_frame = tk.Frame(frame, bg=BG_LIGHT)
         botones_frame.pack(expand=True)
 

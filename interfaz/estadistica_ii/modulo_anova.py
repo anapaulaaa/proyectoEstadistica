@@ -282,6 +282,14 @@ def _crear_tarjetas_metricas(parent, tarjetas):
         tk.Label(card, text=tarjeta["detalle"], bg=tarjeta["bg"], fg=tarjeta["fg_detalle"], font=("Helvetica", 9)).pack(pady=(0, 10))
 
 
+def _crear_banda_ejemplo(parent, titulo, descripcion):
+    banda = tk.Frame(parent, bg="#E3F2FD", relief="solid", borderwidth=1)
+    banda.pack(fill="x", pady=(0, 10))
+    tk.Label(banda, text=titulo, bg="#E3F2FD", fg="#0D47A1", font=("Helvetica", 11, "bold")).pack(anchor="w", padx=12, pady=(10, 2))
+    tk.Label(banda, text=descripcion, bg="#E3F2FD", fg="#1E3A5F", font=("Helvetica", 9), wraplength=1200, justify="left").pack(anchor="w", padx=12, pady=(0, 10))
+    return banda
+
+
 def _parsear_lista_numeros(texto):
     valores = []
     for parte in re.split(r"[\s,;\n]+", str(texto).strip()):
@@ -442,6 +450,8 @@ class VentanaAnova1Factor(_BaseAnovaView):
         self.obs_var = tk.IntVar(value=5)
         tk.Spinbox(fila2, from_=2, to=20, width=6, textvariable=self.obs_var).pack(side="left", padx=(6, 18))
         self._crear_selector_alpha(fila2)
+        self.grupos_var.trace_add("write", lambda *_: self._autogenerar_matriz_1factor())
+        self.obs_var.trace_add("write", lambda *_: self._autogenerar_matriz_1factor())
         tk.Button(fila2, text="Generar tabla", command=self.generar_tabla, bg=COLOR_SECONDARY, fg="#000000", font=("Helvetica", 10, "bold"), cursor="hand2", padx=12, pady=6).pack(side="left", padx=8)
         tk.Button(fila2, text="Calcular ANOVA", command=self.calcular, bg=COLOR_SUCCESS, fg="#000000", font=("Helvetica", 10, "bold"), cursor="hand2", padx=12, pady=6).pack(side="left", padx=4)
 
@@ -480,14 +490,31 @@ class VentanaAnova1Factor(_BaseAnovaView):
 
         self.frame_metricas = tk.Frame(self.tab_interpretacion, bg=BG_LIGHT)
         self.frame_metricas.pack(fill="x", padx=8, pady=(8, 0))
+        self.estado_ejemplo_var = tk.StringVar(value="Selecciona un ejemplo y pulsa Cargar ejemplo para ver el caso completo.")
+        tk.Label(
+            frame,
+            textvariable=self.estado_ejemplo_var,
+            bg="#E3F2FD",
+            fg="#0D47A1",
+            font=("Helvetica", 9, "italic"),
+            relief="solid",
+            borderwidth=1,
+            padx=10,
+            pady=6,
+            wraplength=1200,
+            justify="left",
+        ).pack(fill="x", pady=(0, 8))
 
         self.generar_tabla()
         self.cargar_ejemplo()
 
     def _crear_matriz_entrada(self):
         _limpiar_frame(self.frame_entrada)
-        grupos = int(self.grupos_var.get())
-        observaciones = int(self.obs_var.get())
+        try:
+            grupos = int(self.grupos_var.get())
+            observaciones = int(self.obs_var.get())
+        except Exception:
+            return
         self.nombre_vars = [tk.StringVar(value=f"Grupo {i + 1}") for i in range(grupos)]
         self.valor_entries = []
 
@@ -513,6 +540,12 @@ class VentanaAnova1Factor(_BaseAnovaView):
     def generar_tabla(self):
         self._crear_matriz_entrada()
 
+    def _autogenerar_matriz_1factor(self):
+        try:
+            self._crear_matriz_entrada()
+        except Exception:
+            pass
+
     def limpiar_datos(self):
         for nombre in self.nombre_vars:
             nombre.set("")
@@ -533,6 +566,7 @@ class VentanaAnova1Factor(_BaseAnovaView):
         self.grupos_var.set(len(grupos))
         self.obs_var.set(max(len(grupo[1]) for grupo in grupos))
         self._crear_matriz_entrada()
+        self.estado_ejemplo_var.set(f"Ejemplo activo: {self.ejemplo_var.get()} | {len(grupos)} grupos cargados.")
         for indice, (nombre, valores) in enumerate(grupos):
             self.nombre_vars[indice].set(nombre)
             for fila, valor in enumerate(valores):
@@ -671,6 +705,9 @@ class _AnovaDosFactoresTab:
             tk.Label(fila2, text="Replicaciones por celda:", bg=BG_WHITE).pack(side="left")
             self.replicaciones_var = tk.IntVar(value=2)
             tk.Spinbox(fila2, from_=2, to=6, width=6, textvariable=self.replicaciones_var).pack(side="left", padx=(6, 18))
+            self.replicaciones_var.trace_add("write", lambda *_: self._autogenerar_matriz_2factores())
+        self.filas_var.trace_add("write", lambda *_: self._autogenerar_matriz_2factores())
+        self.columnas_var.trace_add("write", lambda *_: self._autogenerar_matriz_2factores())
         self.alpha_var = tk.StringVar(value="0.05")
         tk.Label(fila2, text="Alpha:", bg=BG_WHITE).pack(side="left")
         ttk.Combobox(fila2, textvariable=self.alpha_var, values=["0.10", "0.05", "0.01"], state="readonly", width=10).pack(side="left", padx=8)
@@ -709,8 +746,11 @@ class _AnovaDosFactoresTab:
 
     def _crear_matriz_entrada(self):
         _limpiar_frame(self.frame_entrada)
-        filas = int(self.filas_var.get())
-        columnas = int(self.columnas_var.get())
+        try:
+            filas = int(self.filas_var.get())
+            columnas = int(self.columnas_var.get())
+        except Exception:
+            return
         self.nombre_filas_vars = [tk.StringVar(value=f"Fila {i + 1}") for i in range(filas)]
         self.nombre_columnas_vars = [tk.StringVar(value=f"Columna {j + 1}") for j in range(columnas)]
         self.valor_entries = []
@@ -737,6 +777,12 @@ class _AnovaDosFactoresTab:
 
     def generar_tabla(self):
         self._crear_matriz_entrada()
+
+    def _autogenerar_matriz_2factores(self):
+        try:
+            self._crear_matriz_entrada()
+        except Exception:
+            pass
 
     def limpiar_datos(self):
         for var in getattr(self, "nombre_filas_vars", []):
@@ -1057,6 +1103,20 @@ class VentanaEjerciciosAnova:
         self.frame_anova_2.pack(fill="both", expand=True, pady=(8, 0))
         self.frame_metricas_2 = tk.Frame(frame, bg=BG_LIGHT)
         self.frame_metricas_2.pack(fill="x", pady=(8, 0))
+        self.estado_ejemplo_var = tk.StringVar(value="Selecciona un ejemplo y pulsa Cargar ejemplo para ver el caso completo.")
+        tk.Label(
+            frame,
+            textvariable=self.estado_ejemplo_var,
+            bg="#FFF8E1",
+            fg="#8A6D00",
+            font=("Helvetica", 9, "italic"),
+            relief="solid",
+            borderwidth=1,
+            padx=10,
+            pady=6,
+            wraplength=1200,
+            justify="left",
+        ).pack(fill="x", pady=(0, 8))
         self.texto_resultado_2 = scrolledtext.ScrolledText(frame, height=9, font=("Consolas", 10), bg=BG_WHITE)
         self.texto_resultado_2.pack(fill="both", expand=True, pady=(8, 0))
 
@@ -1132,6 +1192,7 @@ class VentanaEjerciciosAnova:
         self.ejercicio_2_actual = self._buscar_ejercicio(self.ej_2_var.get())
         ejercicio = self.ejercicio_2_actual
         datos = ejercicio["datos"]
+        self.estado_ejemplo_var.set(f"Ejemplo activo: {ejercicio['titulo']}")
         lineas = [f"{ejercicio['titulo']}", "", f"Procedimiento: {ejercicio['procedimiento']}", "", "Datos originales:"]
         if "matriz" in datos:
             matriz = np.array(datos["matriz"], dtype=float)

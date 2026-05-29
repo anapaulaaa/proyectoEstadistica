@@ -2,6 +2,7 @@
 
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -17,6 +18,7 @@ class VentanaAnalisis(tk.Toplevel):
     def __init__(self, parent, titulo, datos=None):
         super().__init__(parent)
         self.title(titulo)
+        self.titulo = titulo
         
         # Obtener dimensiones de la pantalla
         screen_width = self.winfo_screenwidth()
@@ -32,6 +34,7 @@ class VentanaAnalisis(tk.Toplevel):
         
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
         self.datos = datos
+        self.estado_datos_var = tk.StringVar(value="No hay datos cargados todavía.")
         
         # Configurar ventana para que sea responsive
         self.grid_rowconfigure(0, weight=1)
@@ -196,6 +199,48 @@ class VentanaAnalisis(tk.Toplevel):
             btn_random.bind("<Leave>", on_leave_random)
             
             crear_tooltip(btn_random, "🎲 Genera datos aleatorios para probar sin CSV")
+
+            # Botón Cargar Ejemplo con dataset real del proyecto
+            btn_ejemplo = tk.Button(
+                btn_inner_container,
+                text="📚 Cargar Ejemplo",
+                command=self.cargar_ejemplo,
+                bg="#8E24AA",
+                fg="#000000",
+                font=("Helvetica", 11, "bold"),
+                relief="flat",
+                cursor="hand2",
+                padx=25,
+                pady=12,
+                activebackground="#BA68C8",
+                activeforeground="#000000",
+                borderwidth=0
+            )
+            btn_ejemplo.pack(side='left', padx=8)
+
+            def on_enter_ejemplo(e):
+                btn_ejemplo['bg'] = '#BA68C8'
+            def on_leave_ejemplo(e):
+                btn_ejemplo['bg'] = '#8E24AA'
+            btn_ejemplo.bind("<Enter>", on_enter_ejemplo)
+            btn_ejemplo.bind("<Leave>", on_leave_ejemplo)
+
+            crear_tooltip(btn_ejemplo, "📚 Carga un ejemplo real del proyecto para probar el análisis sin buscar un CSV")
+
+        self.lbl_estado_datos = tk.Label(
+            self.btn_frame,
+            textvariable=self.estado_datos_var,
+            bg="#E8F5E9",
+            fg="#1B5E20",
+            font=("Helvetica", 10, "bold"),
+            relief='solid',
+            borderwidth=1,
+            padx=12,
+            pady=8,
+            wraplength=1000,
+            justify='left'
+        )
+        self.lbl_estado_datos.pack(fill='x', padx=15, pady=(8, 0))
         
         # ===== CONTENEDOR CON PESTAÑAS MEJORADO =====
         # Estilo personalizado para las pestañas
@@ -459,9 +504,35 @@ class VentanaAnalisis(tk.Toplevel):
                 for col in self.datos.columns:
                     info += f"  • {col}\n"
                 
+                self.estado_datos_var.set(f"Archivo cargado: {ruta.split('/')[-1]} | {len(self.datos)} filas, {len(self.datos.columns)} columnas")
                 messagebox.showinfo("Éxito", info)
             except Exception as e:
                 messagebox.showerror("Error", f"❌ No se pudo cargar el archivo:\n\n{str(e)}")
+
+    def cargar_ejemplo(self):
+        """Carga un ejemplo real del proyecto para análisis descriptivo."""
+        try:
+            ruta = Path(__file__).resolve().parent.parent / "datos" / "datos_completo_estudiantes.csv"
+            from utils.cargar_datos import importar_csv
+            datos = importar_csv(ruta)
+            if datos is None:
+                raise ValueError("No se pudo leer el ejemplo del proyecto.")
+
+            self.datos = datos
+            resumen = f"Ejemplo cargado: {ruta.name} | {len(datos)} filas, {len(datos.columns)} columnas"
+            if 'Edad' in datos.columns:
+                serie = pd.to_numeric(datos['Edad'], errors='coerce').dropna()
+                if not serie.empty:
+                    resumen += f" | Edad: {int(serie.min())}-{int(serie.max())}"
+            self.estado_datos_var.set(resumen)
+
+            preview = datos.head(8).to_string(index=False)
+            messagebox.showinfo(
+                "Ejemplo cargado",
+                f"✅ Se cargó el dataset de ejemplo correctamente.\n\n{resumen}\n\nVista previa:\n{preview}"
+            )
+        except Exception as e:
+            messagebox.showerror("Error", f"❌ No se pudo cargar el ejemplo:\n\n{str(e)}")
     
     def generar_datos_random(self):
         """Genera datos aleatorios para pruebas"""
@@ -525,6 +596,7 @@ class VentanaAnalisis(tk.Toplevel):
                     # Generar datos aleatorios
                     edades = np.random.randint(valor_min, valor_max + 1, cantidad)
                     self.datos = pd.DataFrame({'Edad': edades})
+                    self.estado_datos_var.set(f"Datos aleatorios generados: {cantidad} filas | Edad entre {valor_min} y {valor_max}")
                     
                     info = f"✅ DATOS ALEATORIOS GENERADOS\n\n"
                     info += f"Cantidad de datos: {cantidad}\n"
@@ -596,6 +668,8 @@ class VentanaAnalisis(tk.Toplevel):
         canvas = FigureCanvasTkAgg(figura, canvas_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill='both', expand=True)
+
+        self.estado_datos_var.set(self.estado_datos_var.get() or "Gráfico generado correctamente.")
         
         # Cambiar a la pestaña de gráficos
         self.notebook.select(self.tab_graficos)
