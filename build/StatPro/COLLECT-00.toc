@@ -655,6 +655,52 @@
   ('_tk_data/xmfbox.tcl',
    '/Library/Frameworks/Python.framework/Versions/3.13/Frameworks/Tk.framework/Versions/8.6/Resources/Scripts/xmfbox.tcl',
    'DATA'),
+  ('assets/app.icns',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA FINAL/assets/app.icns',
+   'DATA'),
+  ('assets/app.ico',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA FINAL/assets/app.ico',
+   'DATA'),
+  ('assets/app.iconset/icon_128x128.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_128x128.png',
+   'DATA'),
+  ('assets/app.iconset/icon_128x128@2x.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_128x128@2x.png',
+   'DATA'),
+  ('assets/app.iconset/icon_16x16.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_16x16.png',
+   'DATA'),
+  ('assets/app.iconset/icon_16x16@2x.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_16x16@2x.png',
+   'DATA'),
+  ('assets/app.iconset/icon_256x256.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_256x256.png',
+   'DATA'),
+  ('assets/app.iconset/icon_256x256@2x.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_256x256@2x.png',
+   'DATA'),
+  ('assets/app.iconset/icon_32x32.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_32x32.png',
+   'DATA'),
+  ('assets/app.iconset/icon_32x32@2x.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_32x32@2x.png',
+   'DATA'),
+  ('assets/app.iconset/icon_512x512.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_512x512.png',
+   'DATA'),
+  ('assets/app.iconset/icon_512x512@2x.png',
+   '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
+   'FINAL/assets/app.iconset/icon_512x512@2x.png',
+   'DATA'),
   ('assets/logo.png',
    '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA FINAL/assets/logo.png',
    'DATA'),

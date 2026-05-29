@@ -2,7 +2,7 @@
  False,
  False,
  True,
- None,
+ ['/Users/anapaulavasquez/Downloads/2DA ESTADISTICA FINAL/assets/app.icns'],
  None,
  False,
  False,
@@ -71,7 +71,7 @@
  [],
  False,
  False,
- 1780092278,
+ 1780093103,
  [('runw',
    '/Users/anapaulavasquez/Downloads/2DA ESTADISTICA '
    'FINAL/.venv/lib/python3.13/site-packages/PyInstaller/bootloader/Darwin-64bit/runw',

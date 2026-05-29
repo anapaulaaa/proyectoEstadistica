@@ -32,6 +32,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['/Users/anapaulavasquez/Downloads/2DA ESTADISTICA FINAL/assets/app.icns'],
 )
 coll = COLLECT(
     exe,
@@ -45,6 +46,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='StatPro.app',
-    icon=None,
+    icon='/Users/anapaulavasquez/Downloads/2DA ESTADISTICA FINAL/assets/app.icns',
     bundle_identifier=None,
 )

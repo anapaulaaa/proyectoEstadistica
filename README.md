@@ -48,6 +48,11 @@ En una computadora con Windows, usa `build_windows.bat` desde la raíz del proye
 ### Nota sobre recursos
 El programa ya fue ajustado para localizar correctamente el logo, los CSV de ejemplo y la carpeta de exportación cuando se ejecuta empaquetado.
 
+### Icono de la app
+La aplicación ya usa el logo del proyecto como icono embebido:
+- macOS: `assets/app.icns`
+- Windows: `assets/app.ico`
+
 
 ### Notas
 El repositorio puede ampliarse con más ejemplos y datasets.

@@ -19,6 +19,19 @@ def _data_args():
     return args
 
 
+def _icon_args():
+    if sys.platform == "darwin":
+        icon = ROOT / "assets" / "app.icns"
+    elif sys.platform.startswith("win"):
+        icon = ROOT / "assets" / "app.ico"
+    else:
+        icon = None
+
+    if icon is not None and icon.exists():
+        return ["--icon", str(icon)]
+    return []
+
+
 def build(onefile: bool, clean: bool):
     try:
         import PyInstaller  # noqa: F401
@@ -36,6 +49,7 @@ def build(onefile: bool, clean: bool):
         "--noconfirm",
         "--clean" if clean else "",
         "--onefile" if onefile else "--onedir",
+        *(_icon_args()),
         *(_data_args()),
     ]
 

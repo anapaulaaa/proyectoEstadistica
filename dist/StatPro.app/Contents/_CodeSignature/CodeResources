@@ -752,13 +752,65 @@
 		<data>
 		GBqdjL2eeFxpGUmsJTamHaS0USo=
 		</data>
+		<key>Resources/app.icns</key>
+		<data>
+		ttof0mBGYVo1uSwf0vF5xpLJh9E=
+		</data>
+		<key>Resources/assets/app.icns</key>
+		<data>
+		ttof0mBGYVo1uSwf0vF5xpLJh9E=
+		</data>
+		<key>Resources/assets/app.ico</key>
+		<data>
+		LVNoG6+QOPlvnwC60ZDT38hIYAE=
+		</data>
+		<key>Resources/assets/app.iconset/icon_128x128.png</key>
+		<data>
+		UKgdN/j6gZ9gDk7ngcLlf9D/OTI=
+		</data>
+		<key>Resources/assets/app.iconset/icon_128x128@2x.png</key>
+		<data>
+		oJUBsHwvobdHA+Rhb6C0+iUDrSs=
+		</data>
+		<key>Resources/assets/app.iconset/icon_16x16.png</key>
+		<data>
+		x2brX2MORCBClF9IWF5iLWdI5fg=
+		</data>
+		<key>Resources/assets/app.iconset/icon_16x16@2x.png</key>
+		<data>
+		HtJx3zxZRrUzLaqrqrpmGV5WKY0=
+		</data>
+		<key>Resources/assets/app.iconset/icon_256x256.png</key>
+		<data>
+		oJUBsHwvobdHA+Rhb6C0+iUDrSs=
+		</data>
+		<key>Resources/assets/app.iconset/icon_256x256@2x.png</key>
+		<data>
+		CIKVngHqnWjuMlR4EzMCKyyvvzk=
+		</data>
+		<key>Resources/assets/app.iconset/icon_32x32.png</key>
+		<data>
+		HtJx3zxZRrUzLaqrqrpmGV5WKY0=
+		</data>
+		<key>Resources/assets/app.iconset/icon_32x32@2x.png</key>
+		<data>
+		O1eJMcpeOpWCXM293MG3MG6Pjjo=
+		</data>
+		<key>Resources/assets/app.iconset/icon_512x512.png</key>
+		<data>
+		CIKVngHqnWjuMlR4EzMCKyyvvzk=
+		</data>
+		<key>Resources/assets/app.iconset/icon_512x512@2x.png</key>
+		<data>
+		t34IUUZQeEAfVsqwYbeU6XTsw7U=
+		</data>
 		<key>Resources/assets/logo.png</key>
 		<data>
 		r/8G5NpIqnPioq26LIdp3lrjMyo=
 		</data>
 		<key>Resources/base_library.zip</key>
 		<data>
-		8QSxDEpO9jci3VdWHyOMHOMYw1Y=
+		/pTyC1NKEmizfBjcswff47ihjF8=
 		</data>
 		<key>Resources/dateutil/zoneinfo/dateutil-zoneinfo.tar.gz</key>
 		<data>
@@ -847,10 +899,6 @@
 		<key>Resources/datos/resultados_tendencia.csv</key>
 		<data>
 		U8v0h/FXFoXAysGoJGbrAVQSPSY=
-		</data>
-		<key>Resources/icon-windowed.icns</key>
-		<data>
-		eEHOuYpZLB0vKGVIWGZOh5rH8+o=
 		</data>
 		<key>Resources/matplotlib/mpl-data/fonts/afm/cmex10.afm</key>
 		<data>
@@ -1800,118 +1848,118 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			U3iIojDHSBQi7zGvH7XA/VOBIXE=
+			LZ0+FCgszJ8fWnDVeUXoWPqWEZI=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"537888a230c7481422ef31af1fb5c0fd53812171"</string>
+			<string>cdhash H"2d9d3e14282ccc9f1f5a70d57945e858fa961192"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libavif.16.4.1.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			YQzomA6CqIElX/Sk4TuOCiKC+Mw=
+			KjFqyu5IgKrd896kbGTMkTTiWmU=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"610ce8980e82a881255ff4a4e13b8e0a2282f8cc"</string>
+			<string>cdhash H"2a316acaee4880aaddf3dea46c64cc9134e25a65"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libjpeg.62.4.0.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Zv3hMPtLQsDfEsJn2vFGY1obZbM=
+			P5w7YocW2zRuNrhRncRq9pqijQY=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"66fde130fb4b42c0df12c267daf146635a1b65b3"</string>
+			<string>cdhash H"3f9c3b628716db346e36b8519dc46af69aa28d06"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/liblcms2.2.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Y/nqcpAjtQNrThm4zg89pDShfSs=
+			irIfoRgdIAm9eQ8fsVsf+bNM7wI=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"63f9ea729023b5036b4e19b8ce0f3da434a17d2b"</string>
+			<string>cdhash H"8ab21fa1181d2009bd790f1fb15b1ff9b34cef02"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/liblzma.5.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			4P4VwL6vF01N3z6vuffc1YYtKU0=
+			vTK7a4nsphnIK8hfHdJdT+GMqp8=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"e0fe15c0beaf174d4ddf3eafb9f7dcd5862d294d"</string>
+			<string>cdhash H"bd32bb6b89eca619c82bc85f1dd25d4fe18caa9f"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libopenjp2.2.5.4.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Y7+jE1IKM9b2lW21IfQ0v0UtBKk=
+			8Pw8FBEi0aCDSrG4DvfMO5Wzx4k=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"63bfa313520a33d6f6956db521f434bf452d04a9"</string>
+			<string>cdhash H"f0fc3c141122d1a0834ab1b80ef7cc3b95b3c789"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libsharpyuv.0.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			96HYViScw0yyoEywV5qIGPQ/e7c=
+			swN9bhUofj08ctJyegBTTDN9loU=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"f7a1d856249cc34cb2a04cb0579a8818f43f7bb7"</string>
+			<string>cdhash H"b3037d6e15287e3d3c72d2727a00534c337d9685"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libtiff.6.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			oGQAJoREfJ+BFV5MDb5Fzltjgsc=
+			qFClLtdlxYkise+30sdo6r0HVjw=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"a064002684447c9f81155e4c0dbe45ce5b6382c7"</string>
+			<string>cdhash H"a850a52ed765c58922b1efb7d2c768eabd07563c"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libwebp.7.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			cssNdNqySDZKirPJJ1TaJVMdocU=
+			MlBgBqJ65Ue8JMg3UT6rQQAxj08=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"72cb0d74dab248364a8ab3c92754da25531da1c5"</string>
+			<string>cdhash H"32506006a27ae547bc24c837513eab4100318f4f"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libwebpdemux.2.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			HwXsfrxpeuQhseinFiRR9ynGQi0=
+			nZyTaJrW93tOPW03GhBCc22L/TI=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"1f05ec7ebc697ae421b1e8a7162451f729c6422d"</string>
+			<string>cdhash H"9d9c93689ad6f77b4e3d6d371a1042736d8bfd32"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libwebpmux.3.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			JJ52dU38C62MhvFxO+o8QK+N9YE=
+			B2M1iPAQZiDA1p90X8zBhQEhCQw=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"249e76754dfc0bad8c86f1713bea3c40af8df581"</string>
+			<string>cdhash H"07633588f0106620c0d69f745fccc1850121090c"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libxcb.1.1.0.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			7dfbWWiZnQasC1zJjLSvJ4ReGuY=
+			NetCPXqA8hsA8erq/n8NK8ye/Ro=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"edd7db5968999d06ac0b5cc98cb4af27845e1ae6"</string>
+			<string>cdhash H"35eb423d7a80f21b00f1eaeafe7f0d2bcc9efd1a"</string>
 		</dict>
 		<key>Frameworks/PIL/__dot__dylibs/libz.1.3.1.zlib-ng.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			cV47V6JvHLUcDBDFxFz5QKQOBLw=
+			KauN6CHY2nRT9lAH6SmJEktJJ8A=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"715e3b57a26f1cb51c0c10c5c45cf940a40e04bc"</string>
+			<string>cdhash H"29ab8de821d8da7453f65007e92989124b4927c0"</string>
 		</dict>
 		<key>Frameworks/PIL/_avif.cpython-313-darwin.so</key>
 		<dict>
@@ -1976,28 +2024,28 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			fYbaSfwe4v3wbJ9qM+npE7GHAB8=
+			AE454AU8Wqc23Fr1zjBJy5E7lNI=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"7d86da49fc1ee2fdf06c9f6a33e9e913b187001f"</string>
+			<string>cdhash H"004e39e0053c5aa736dc5af5ce3049cb913b94d2"</string>
 		</dict>
 		<key>Frameworks/Tcl</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			VnKvZS/RCCeZXoGLROmAZn3BVdw=
+			zcM+lV/FBtzqQLN59eYVUGGLZaM=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"5672af652fd10827995e818b44e980667dc155dc"</string>
+			<string>cdhash H"cdc33e955fc506dcea40b379f5e61550618b65a3"</string>
 		</dict>
 		<key>Frameworks/Tk</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			4tTRBscR1zM+ukAJ0ukx8P99eBE=
+			UuzhZh07ODq94Mx2NjwiiUYgC/k=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"e2d4d106c711d7333eba4009d2e931f0ff7d7811"</string>
+			<string>cdhash H"52ece1661d3b383abde0cc76363c228946200bf9"</string>
 		</dict>
 		<key>Frameworks/_tcl_data</key>
 		<dict>
@@ -2061,10 +2109,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			FUyQUPXg5pGeytDUPxCZnnfLcZ4=
+			ORyO/TV/eRik8sMBKU+6EsAUH1M=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"154c9050f5e0e6919ecad0d43f10999e77cb719e"</string>
+			<string>cdhash H"391c8efd357f7918a4f2c301294fba12c0141f53"</string>
 		</dict>
 		<key>Frameworks/libgcc_s.1.1.dylib</key>
 		<dict>
@@ -2110,10 +2158,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			m10S7lqVP9N6gpeKiefcSdPlSHA=
+			fCXAQ8qzyQT9PAQUaADMxhk6/6E=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"9b5d12ee5a953fd37a82978a89e7dc49d3e54870"</string>
+			<string>cdhash H"7c25c043cab3c904fd3c04146800ccc6193affa1"</string>
 		</dict>
 		<key>Frameworks/libtiff.6.dylib</key>
 		<dict>
@@ -3272,28 +3320,28 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Wjz8aRgEp44cFByEmXN5Ql/xjjU=
+			iADS5WMkV6DT5D8VT1AZ9XTvjnM=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"5a3cfc691804a78e1c141c84997379425ff18e35"</string>
+			<string>cdhash H"8800d2e5632457a0d3e43f154f5019f574ef8e73"</string>
 		</dict>
 		<key>Frameworks/scipy/__dot__dylibs/libgfortran.5.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			seUWaAG1z3R6e5fSXKf78WKCtOo=
+			ESfL4f1wFkf5bCOpHAmO4oL5LjE=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"b1e5166801b5cf747a7b97d25ca7fbf16282b4ea"</string>
+			<string>cdhash H"1127cbe1fd701647f96c23a91c098ee282f92e31"</string>
 		</dict>
 		<key>Frameworks/scipy/__dot__dylibs/libquadmath.0.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			1LPh8MHdaFBkFbEH/fquP2JrWD8=
+			wxGVyH6BxBf/0WysUxfDPC0ZkUs=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"d4b3e1f0c1dd68506415b107fdfaae3f626b583f"</string>
+			<string>cdhash H"c31195c87e81c417ffd16cac5317c33c2d19914b"</string>
 		</dict>
 		<key>Frameworks/scipy/_cyutility.cpython-313-darwin.so</key>
 		<dict>
@@ -5426,6 +5474,97 @@
 			IdJZTIMZ8UxHoPC/PSrKvMgsmrjYSmT6PLYIx+dfWcM=
 			</data>
 		</dict>
+		<key>Resources/app.icns</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ZADmPtHYE7tUf9XJPzVe5yhVb46xfKpDASqdu94LEvc=
+			</data>
+		</dict>
+		<key>Resources/assets/app.icns</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ZADmPtHYE7tUf9XJPzVe5yhVb46xfKpDASqdu94LEvc=
+			</data>
+		</dict>
+		<key>Resources/assets/app.ico</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			mET88a5kEvS9ZbOXZG2ZZg/4xV6haWoErbBMpWTgu6I=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_128x128.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			tTyQ5mKlIdbntWG5Awrb5wCBzY1A4JPHCYl9JPj5wfw=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_128x128@2x.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			O1VIMMvFjNGarCLTiOIo1oZh8lwAbfyyGWj7P/8u0Os=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_16x16.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			4GNCp1JZ9VqWFO28edOXBd04GNSdnW0voNwbq4Xs9BI=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_16x16@2x.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			URb1QOEJ2LBRCmvrqaLQHSvvt9NGb7uzOaD8xdVqUlA=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_256x256.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			O1VIMMvFjNGarCLTiOIo1oZh8lwAbfyyGWj7P/8u0Os=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_256x256@2x.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			nveZUL24iIhysSYyQnkSRj/CTgVgX4mf7PmHEc0F1PE=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_32x32.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			URb1QOEJ2LBRCmvrqaLQHSvvt9NGb7uzOaD8xdVqUlA=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_32x32@2x.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			O6kDwTNH//gvTTWEHfDedeDmp0CSFWgPYzrshzqfKEQ=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_512x512.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			nveZUL24iIhysSYyQnkSRj/CTgVgX4mf7PmHEc0F1PE=
+			</data>
+		</dict>
+		<key>Resources/assets/app.iconset/icon_512x512@2x.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			N6zhO+PbHZtTo/xpgAycPOstwStnhzAuqAG35Z2TEwU=
+			</data>
+		</dict>
 		<key>Resources/assets/logo.png</key>
 		<dict>
 			<key>hash2</key>
@@ -5437,7 +5576,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			8w6zHlGSXQTfougt7pr1TZBENdBAdmjr8yvOtYEB5c8=
+			5YmGPIHkZDf3evpE3FkK0vH/pv71gBuGYB1KG/T8z1g=
 			</data>
 		</dict>
 		<key>Resources/contourpy</key>
@@ -5597,13 +5736,6 @@
 			<key>hash2</key>
 			<data>
 			F7neqPK8ABM5CJ7bGuePwnYhnrc4/mvBaTZSlqqiD/E=
-			</data>
-		</dict>
-		<key>Resources/icon-windowed.icns</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			uQo7VuWRab4Phv4EEGmfQsyqFqDIXZgO8OtgaAMvCzY=
 			</data>
 		</dict>
 		<key>Resources/kiwisolver</key>

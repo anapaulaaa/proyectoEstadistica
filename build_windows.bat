@@ -10,7 +10,7 @@ if not exist ".venv\Scripts\python.exe" (
 
 ".venv\Scripts\python.exe" -m pip install --upgrade pip
 ".venv\Scripts\python.exe" -m pip install -r requirements.txt
-".venv\Scripts\python.exe" -m PyInstaller main.py --name StatPro --windowed --noconfirm --clean --onefile --add-data "datos;datos" --add-data "assets;assets"
+".venv\Scripts\python.exe" -m PyInstaller main.py --name StatPro --windowed --noconfirm --clean --onefile --icon "assets\app.ico" --add-data "datos;datos" --add-data "assets;assets"
 
 echo.
 echo Build terminado. Revisa la carpeta dist\ para encontrar StatPro.exe.
