@@ -117,7 +117,7 @@ class SelectorNivel:
 
         tk.Label(
             card_2,
-            text="Nueva unidad del proyecto\n(estructura inicial)",
+            text="Estadistica II ampliada\n(ANOVA y temas inferenciales)",
             font=("Helvetica", 11),
             bg="#F3E5F5",
             fg="#4A2A62",

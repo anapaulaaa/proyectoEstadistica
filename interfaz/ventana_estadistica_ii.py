@@ -8,6 +8,7 @@ from interfaz.estadistica_ii import (
     abrir_modulo_estimacion_puntual,
     abrir_modulo_intervalos_confianza,
     abrir_modulo_muestreo,
+    abrir_modulo_anova_menu,
 )
 
 
@@ -52,8 +53,36 @@ class VentanaEstadisticaII:
             activeforeground="#000000",
         ).pack(side="right", padx=20, pady=18)
 
-        cont = tk.Frame(self.root, bg=BG_LIGHT)
-        cont.pack(fill="both", expand=True, padx=40, pady=30)
+        contenedor = tk.Frame(self.root, bg=BG_LIGHT)
+        contenedor.pack(fill="both", expand=True)
+
+        canvas = tk.Canvas(contenedor, bg=BG_LIGHT, highlightthickness=0)
+        canvas.pack(side="left", fill="both", expand=True)
+
+        scrollbar = tk.Scrollbar(contenedor, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side="right", fill="y")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        cont = tk.Frame(canvas, bg=BG_LIGHT)
+        cont_window = canvas.create_window((0, 0), window=cont, anchor="nw")
+
+        def _actualizar_scroll(_event=None):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        def _ajustar_ancho(event):
+            canvas.itemconfigure(cont_window, width=event.width)
+
+        cont.bind("<Configure>", _actualizar_scroll)
+        canvas.bind("<Configure>", _ajustar_ancho)
+
+        def _mover_rueda(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        canvas.bind_all("<MouseWheel>", _mover_rueda)
+        canvas.bind_all("<Button-4>", lambda e: canvas.yview_scroll(-1, "units"))
+        canvas.bind_all("<Button-5>", lambda e: canvas.yview_scroll(1, "units"))
+
 
         tk.Label(
             cont,
@@ -114,9 +143,19 @@ class VentanaEstadisticaII:
             "#2E7D32",
         )
 
+        self._crear_card_tema(
+            frame_botones,
+            "📊 ANOVA",
+            "Abre el menú de ANOVA para elegir 1 factor, 2 factores o ejercicios.",
+            abrir_modulo_anova_menu,
+            "#E3F2FD",
+            "#0D47A1",
+            "#1565C0",
+        )
+
         tk.Button(
             cont,
-            text="Volver al selector",
+            text="← Volver al selector",
             command=self.callback_volver,
             bg=COLOR_INFO,
             fg="#000000",

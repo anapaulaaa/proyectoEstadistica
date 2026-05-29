@@ -98,7 +98,12 @@ class StatProMain:
         self.root.geometry(f'{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}')
         
         # Crear menú principal
-        MenuPrincipal(self.root, self.usuario_actual, self.on_cerrar_sesion)
+        MenuPrincipal(
+            self.root,
+            self.usuario_actual,
+            self.on_cerrar_sesion,
+            self.mostrar_selector_nivel,
+        )
 
     def mostrar_estadistica_ii(self):
         """Muestra la ventana placeholder de Estadistica II"""

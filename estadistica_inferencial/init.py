@@ -26,6 +26,11 @@ from .bayes import TeoremaBayes
 from .diagramas_arbol import DiagramaArbol
 
 from .estimacion_tamano_muestra import EstimacionTamanoMuestra
+from .anova import (
+    anova_un_factor,
+    anova_dos_factores_sin_replicacion,
+    anova_dos_factores_con_replicacion,
+)
 
 __all__ = [
     # Probabilidades
@@ -52,7 +57,12 @@ __all__ = [
     'DiagramaArbol',
 
     # Estimacion y tamano de muestra
-    'EstimacionTamanoMuestra'
+    'EstimacionTamanoMuestra',
+
+    # ANOVA
+    'anova_un_factor',
+    'anova_dos_factores_sin_replicacion',
+    'anova_dos_factores_con_replicacion'
 ]
 
 __version__ = '1.0'

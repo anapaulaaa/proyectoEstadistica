@@ -22,10 +22,11 @@ from interfaz.componentes_analisis import VentanaAnalisis, crear_panel_instrucci
 from interfaz.menu_inferencial_mixin import MenuInferencialMixin
 
 class MenuPrincipal(MenuInferencialMixin):
-    def __init__(self, root, usuario, callback_cerrar_sesion):
+    def __init__(self, root, usuario, callback_cerrar_sesion, callback_volver_selector=None):
         self.root = root
         self.usuario = usuario
         self.callback_cerrar_sesion = callback_cerrar_sesion
+        self.callback_volver_selector = callback_volver_selector
         
         # Obtener dimensiones de la pantalla
         screen_width = self.root.winfo_screenwidth()
@@ -128,6 +129,22 @@ class MenuPrincipal(MenuInferencialMixin):
         
         frame_logo = tk.Frame(barra_content, bg=COLOR_PRIMARY)
         frame_logo.pack(side='left')
+
+        if self.callback_volver_selector is not None:
+            tk.Button(
+                frame_logo,
+                text="← Selector",
+                command=self.callback_volver_selector,
+                bg=COLOR_INFO,
+                fg="#000000",
+                font=("Helvetica", 10, "bold"),
+                relief="flat",
+                cursor="hand2",
+                padx=14,
+                pady=5,
+                activebackground="#FFEB3B",
+                activeforeground="#000000",
+            ).pack(side='left', padx=(0, 12))
         
         tk.Label(
             frame_logo,
